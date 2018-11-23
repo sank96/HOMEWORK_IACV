@@ -1,6 +1,6 @@
 %% reload
 clc
 clear cll
-close all;
+close all
 
 %%
