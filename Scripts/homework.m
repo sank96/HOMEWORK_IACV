@@ -1,6 +1,6 @@
 %% reload
 clc
-clear all
+% clear all
 close all
 
 %% load image
@@ -8,8 +8,8 @@ close all
 image1 = imread('Image1.jpeg');
 image2 = imread('Image2.jpeg');
 
-% modificare qui per decidere quali immagini visualizzare 
-% se vuoi visualizzare più immagini mettile in riga
+% modificare qui per decidere quali immagini visualizzare
+% se vuoi visualizzare piï¿½ immagini mettile in riga
 images = image1;
 
 % figure('Name', 'Image');
