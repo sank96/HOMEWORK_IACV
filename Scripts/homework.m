@@ -20,6 +20,9 @@ imagesBW = rgb2gray(images);
 % figure('Name', 'ImageBW');
 % imshowpair(images, imagesBW, 'montage');
 
+%% custom grayScale filter
+% imagesBWFiltered = 0.299*images(:,:,1) + 0.587*images(:,:,2) + 0.114*images(:,:,3);
+
 showTwoImages(images, imagesBW, 'ImageBW');
 
 %% Grafico dell'immagine
