@@ -12,5 +12,6 @@
 
 # TO DO
 - [ ] 4. pulire l'immagine per migliorare la visualizzazione dei corners
+    - [ ] usare **erosion e dilation** sentire note audio di Ale
 - [ ] 5. selezionare solo una parte dell'immagine per velocizzare la ricerca dell'immagine in precise posizioni
 - [ ] ho implemntato un filtro di threshold con soglia, se ne potrebbe fare uno più articolato, prima fare qualche prova per capire quali sono utili!
