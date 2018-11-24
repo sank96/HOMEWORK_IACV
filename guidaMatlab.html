@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="it" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+
+    <link rel="stylesheet" href="/Users/lisa/Cloned/highlight/styles/default.css">
+    <script src="/Users/lisa/Cloned/highlight/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body>
+    <!-- Indice -->
+    <h2>Indice</h2>
+    <ul>
+        <li><a href="#generali">Generali</a></li>
+        <ul>
+            <li><a href="#stampa">Disp()</a></li>
+        </ul>
+
+        <li><a href="#matrici">Matrici</a></li>
+        <ul>
+            <li><a href="#size">Size</a></li>
+            <li><a href="#maxmin">Valori max e min</a></li>
+        </ul>
+
+        <li><a href="#operazioni">Operazioni</a></li>
+        <ul>
+            <li><a href="#divisione">Divisione</a></li>
+        </ul>
+    </ul>
+
+
+    <h1><a name="generali">Generali</a></h1>
+
+    <h3><a name="Disp">Disp</a></h3>
+
+    Permette di stampare a video
+
+    <pre><code class="matlab">
+        disp()
+    </code></pre>
+
+    <h1><a name="matrici">Matrici</a></h1>
+
+    <h3><a name="size">Size</a></h3>
+
+    <pre><code class="matlab">
+        [R, C] = size(matrix);
+    </code></pre>
+
+    <h3><a name="maxmin">Valori max e min</a></h3>
+    Calcola i valori massimi e minimi fra tutte le celle
+    <pre><code class="matlab">
+    MAX = max(max(matrix))
+    MIN = min(min(matrix))
+    </code></pre>
+
+    <h1><a name="operazioni">Operazioni</a></h1>
+
+    <h3><a name="divisione">Divisione fra matrici</a></h3>
+    Dividing each element of <span style="font-weight:bold">a</span> by the corresponding element of <span style="font-weight:bold">b</span>. If inputs a and b are not the same size, one of them must be a scalar value.
+    <pre><code class="matlab">
+        a ./ b
+    </code></pre>
+
+
+
+
+
+
+    </body>
+    </html>
