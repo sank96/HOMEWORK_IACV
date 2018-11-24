@@ -1,4 +1,4 @@
-function findCorners(imagesBW)
+function M = findCorners(imagesBW)
 %FINDCORNERS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -37,9 +37,10 @@ Gy=conv2(imagesBW , dyS , 'same');
 %figure(4),imshow(Gy, []),title('vertical derivative')
 
 % Gradient Norm
-M=sqrt(Gx.^2 + Gy.^2);
+GradNorm=sqrt(Gx.^2 + Gy.^2);
 
-figure('Name', 'edges - gradient magnitude')
-imshow(M, [])
+M = mapImage(GradNorm);
+filterAdvanced(M, Gx, Gy);
+return
 end
 
