@@ -40,10 +40,12 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
         - utilizzare script inviato da ale su slack (chiedere prima al prof)
 
 2. **Geometry:**
+    1. determine the ratio between the diameter of the wheel circles and the wheel-to-wheel distance
+        1. 
 
 
 ## TO DO
-- [ ] pulire l'immagine per migliorare la visualizzazione dei corners
+1. - [ ] (1.3) pulire l'immagine per migliorare la visualizzazione dei corners
     - [ ] usare **erosion e dilation** sentire note audio di Ale
 
 
