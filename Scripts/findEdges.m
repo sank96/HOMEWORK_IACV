@@ -1,4 +1,4 @@
-function M = findCorners(imagesBW)
+function M = findEdges(imagesBW, threshold)
 %FINDCORNERS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -39,8 +39,21 @@ Gy=conv2(imagesBW , dyS , 'same');
 % Gradient Norm
 GradNorm=sqrt(Gx.^2 + Gy.^2);
 
-M = mapImage(GradNorm);
-filterAdvanced(M, Gx, Gy);
-return
+BORDER = 3;
+% remove boundaries as these are affected by zero padding
+GradNorm(1 : BORDER, :) = 0; 
+GradNorm(end - BORDER : end, :) = 0; 
+GradNorm(:, 1 : BORDER) = 0; 
+GradNorm(:, end - BORDER : end) = 0;
+
+%% qui aggiungere altre possibili azioni in base alla threshold
+if strcmp(threshold, 'hard')
+    imageFiltered = filterHardThreshold(GradNorm);
+elseif strcmp(threshold, 'binary')
+    imageFiltered = filterBinaryThreshold(GradNorm);
+end
+
+M = mapImage(imageFiltered);
+
 end
 
