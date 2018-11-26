@@ -19,10 +19,10 @@ pos_rect = round(pos_rect);
 
 % Select part of the image
 imageRegion = image(pos_rect(2) + (0:pos_rect(4)), pos_rect(1) + (0:pos_rect(3)));
-xR = [pos_rect(1) pos_rect(1)+pos_rect(3)    pos_rect(1)+pos_rect(3) pos_rect(1)];
-yR = [pos_rect(2) pos_rect(2)                pos_rect(2)+pos_rect(4) pos_rect(2)+pos_rect(4)]; 
+xR = [pos_rect(1)   pos_rect(1)+pos_rect(3)    pos_rect(1)+pos_rect(3)      pos_rect(1)];
+yR = [pos_rect(2)   pos_rect(2)                pos_rect(2)+pos_rect(4)      pos_rect(2)+pos_rect(4)]; 
 
-
+% Close temporary figure precedently opened
 close 'chose region';
 
 % name = strcat('region', number);
