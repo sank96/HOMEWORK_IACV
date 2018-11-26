@@ -1,7 +1,10 @@
 function [C profile] = findConic(img)
-%FIND Summary of this function goes here
-%   Detailed explanation goes here
+%FINDCONIC Starting from ad image (prefered with edge highlighted), it is asked
+%user to insert 5 points in order to find the Conic.
+%   FINDCONIC return the C matrix that describes the conic and halso a
+%   binary image who represents the boundary of conicm
 
+% display the input image in order to choose 5 points
 figure('Name', 'find conic');
 imshow(img);
 hold on;
@@ -36,7 +39,6 @@ end
 
 im = im < 0;
 profile = findEdges(im, 'binary');
-% scatter(x,y, 100, 'filled');
 
 close 'find conic';
 
