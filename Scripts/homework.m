@@ -17,7 +17,7 @@ images = image1;
 
 %% gray scale
 imagesBW = rgb2gray(images);
-showTwoImages(images, imagesBW, 'ImageBW');
+% showTwoImages(images, imagesBW, 'ImageBW');
 
 %% custom grayScale filter
 % imagesMapped = mapImage(images);
@@ -51,7 +51,7 @@ wheel1M = findEdges(wheel1, 'binary');
 
 %% mostriamo profilo
 wheel1P = showProfile(wheel1, wheel1Profile, 0, 0);
-showTwoImages(wheel1, wheel1P, 'wheel 1 profile');
+% showTwoImages(wheel1, wheel1P, 'wheel 1 profile');
 
 
 
@@ -76,7 +76,51 @@ showTwoImages(wheel2, wheel2P, 'wheel 2 profile');
 
 %% mostriamo ruote
 imageC = showProfile(imagesBW, wheel1Profile, xW1(1), yW1(1));
-showTwoImages(imagesBW, imageC, 'image wheels');
+% showTwoImages(imagesBW, imageC, 'image wheels');
 imageC = showProfile(imageC, wheel2Profile, xW2(1), yW2(1));
 showTwoImages(imagesBW, imageC, 'image wheels');
 
+%% troviamo le bitangenti
+syms a b;
+
+C1 = inv(wheel1C);
+C2 = inv(wheel2C);
+l = [a; b; 1];
+
+% A = sym('A%d%d', [2 4])
+
+% A1 = a^2*C1(1,1) + b^2*C1(2,2) + C1(3,3) + 2*a*b*C1(1,2) + 2*a*C1(1,3) + 2*b*C1(2,3);
+% A2 = a^2*C2(1,1) + b^2*C2(2,2) + C2(3,3) + 2*a*b*C2(1,2) + 2*a*C2(1,3) + 2*b*C2(2,3);
+
+A1 = l.' * C1 * l;
+A2 = l.' * C2 * l;
+sol = solve([A1 A2], [a b]);
+
+% convert symbolic values into variables with double precision
+% https://it.mathworks.com/help/symbolic/double.html
+x = double(sol.a);
+y = double(sol.b);
+onesV = ones(4, 1);
+
+lines = [x y onesV];
+
+line1 = lines(1, :);
+line2 = lines(2, :);
+line3 = lines(3, :);
+line4 = lines(4, :);
+% figure
+% refline(line1(1), line1(2));
+% refline(lines(:,1), lines(:,2));
+%
+% im_four=zeros(500,500);
+% for i=1:500
+%     for j=1:500
+%         im_four(i,j)=[j i 1]*wheel1C*[j i 1]';
+%     end
+% end
+% imshow(im_four > 0);
+%
+% hold off
+
+%% line
+test123 = findLine(imagesBW, lines);
