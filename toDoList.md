@@ -1,4 +1,3 @@
-
 # Assignement
 
 **A. Scene information:**   
@@ -41,7 +40,7 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
 
 2. **Geometry:**
     1. determine the ratio between the diameter of the wheel circles and the wheel-to-wheel distance
-        1. 
+        1.
 
 
 ## TO DO

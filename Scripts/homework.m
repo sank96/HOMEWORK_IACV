@@ -37,7 +37,7 @@ imagesBW = rgb2gray(images);
 [wheel1, xW1, yW1]  = selectRegion(imagesBW, 'wheel1');
 
 
-%% evidenziamo la prima ruota
+% evidenziamo la prima ruota
 
 % i valori di threshold fin ora implementati sono
 % 'hard' 'binary'
@@ -45,11 +45,11 @@ wheel1M = findEdges(wheel1, 'binary');
 % wheel1MS = edge(wheel1, 'Sobel', []);
 % wheel1MC = edge(wheel1, 'canny');
 
-%% ricaviamo l'ellisse
+% ricaviamo l'ellisse
 [wheel1C, wheel1Profile] = findConic(wheel1M);
 % showTwoImages(wheel1, wheel1Profile, 'profile wheel 1');
 
-%% mostriamo profilo
+% mostriamo profilo
 wheel1P = showProfile(wheel1, wheel1Profile, 0, 0);
 % showTwoImages(wheel1, wheel1P, 'wheel 1 profile');
 
@@ -60,19 +60,19 @@ wheel1P = showProfile(wheel1, wheel1Profile, 0, 0);
 
 [wheel2, xW2, yW2]  = selectRegion(imagesBW, 'wheel2');
 
-%% evidenziamo la seconda ruota
+% evidenziamo la seconda ruota
 
 % i valori di threshold fin ora implementati sono
 % 'hard' 'binary'
 wheel2M = findEdges(wheel2, 'binary');
 
-%% ricaviamo l'ellisse
+% ricaviamo l'ellisse
 [wheel2C, wheel2Profile] = findConic(wheel2M);
 % showTwoImages(wheel1, wheel1Profile, 'profile wheel 1');
 
-%% mostriamo profilo
+% mostriamo profilo
 wheel2P = showProfile(wheel2, wheel2Profile, 0, 0);
-showTwoImages(wheel2, wheel2P, 'wheel 2 profile');
+% showTwoImages(wheel2, wheel2P, 'wheel 2 profile');
 
 %% mostriamo ruote
 imageC = showProfile(imagesBW, wheel1Profile, xW1(1), yW1(1));
@@ -104,10 +104,10 @@ onesV = ones(4, 1);
 
 lines = [x y onesV];
 
-line1 = lines(1, :);
-line2 = lines(2, :);
-line3 = lines(3, :);
-line4 = lines(4, :);
+line1 = lines(1, :).';
+line2 = lines(2, :).';
+line3 = lines(3, :).';
+line4 = lines(4, :).';
 % figure
 % refline(line1(1), line1(2));
 % refline(lines(:,1), lines(:,2));
@@ -122,5 +122,30 @@ line4 = lines(4, :);
 %
 % hold off
 
+%% test
+test = zeros(500);
+figure(50), imshow(test);
+hold on
+% keeps on drawing multiple elements on the same figure hold on;
+% select six visible verteces of the cube
+[x y]=getpts;
+% scatter(x,y,100,'filled');
+plot(x,y,'or','MarkerSize',12);
+hold off
+
+a = [x(1); y(1); 1]
+b = [x(2); y(2); 1]
+c = [x(3); y(3); 1]
+d = [x(4); y(4); 1]
+
+% disegna linee fra punti!!!
+ltest = [a.'; b.'; c.'; d.'; a.'];
+line(ltest(:,1), ltest(:,2), 'LineWidth',2);
+
+
 %% line
-test123 = findLine(imagesBW, lines);
+
+test123 = findLine(test, line4);
+test123 = findLine(test123, line3);
+figure(100);
+imshow(test123);
