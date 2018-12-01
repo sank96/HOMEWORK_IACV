@@ -55,6 +55,8 @@ if strcmp(threshold, 'hard')
     imageFiltered = filterHardThreshold(GradNorm);
 elseif strcmp(threshold, 'binary')
     imageFiltered = filterBinaryThreshold(GradNorm);
+elseif strcmp(threshold, 'canny')
+    imageFiltered = edge(imagesBW, 'canny');
 end
 
 M = mapImage(imageFiltered);

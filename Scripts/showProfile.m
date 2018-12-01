@@ -12,7 +12,7 @@ imageProfiled = image;
 for r = 1:R
     for c = 1:C
         if imgP(r,c) == 1
-            imageProfiled(r+y0, c+x0) = 255;
+            imageProfiled(r+y0, c+x0) = 1;
         end
     end
 end
