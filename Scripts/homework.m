@@ -11,11 +11,9 @@ image2 = im2double(imread('Image2.jpeg'));
 
 imagesBW = rgb2gray(image1);
 
-% % MAKE THE PICTURE SQUARED
-% sizeIm = size(imagesBW);
-% hor_size = sizeIm(2);
-% ver_size = sizeIm(1);
-% 
+%% MAKE THE PICTURE SQUARED
+
+% [ver_size hor_size] = size(imagesBW);
 % del = (hor_size-ver_size)/2 ;
 % imagesBW=imagesBW(:, del: (hor_size-del)-1);
 % figure, imshow(imagesBW);
@@ -34,6 +32,13 @@ imagesBW = rgb2gray(image1);
 
 %% seleziono la prima ruota
 [wheel1, xW1, yW1]  = selectRegion(imagesBW, 'wheel1');
+xW1 = xW1(1);
+yW1 = yW1(1);
+
+% con questi funziona
+% wheel1 = imagesBW;
+% xW1 = 0;
+% yW1 = 0;
 
 % EVIDENZIAMO LA PRIMA RUOTA
 
@@ -57,6 +62,13 @@ wheel1P = showProfile(wheel1, wheel1Profile, 0, 0);
 %% seleziono la seconda ruota
 
 [wheel2, xW2, yW2]  = selectRegion(imagesBW, 'wheel2');
+xW2 = xW2(1);
+yW2 = yW2(1);
+
+% con questi funziona
+% wheel2 = imagesBW;
+% xW2 = 0;
+% yW2 = 0;
 
 % evidenziamo la seconda ruota
 
@@ -73,23 +85,15 @@ wheel2P = showProfile(wheel2, wheel2Profile, 0, 0);
 % showTwoImages(wheel2, wheel2P, 'wheel 2 profile');
 
 %% mostriamo ruote
-imageC = showProfile(imagesBW, wheel1Profile, xW1(1), yW1(1));
+imageC = showProfile(imagesBW, wheel1Profile, xW1, yW1);
 % showTwoImages(imagesBW, imageC, 'image wheels');
-imageC = showProfile(imageC, wheel2Profile, xW2(1), yW2(1));
+imageC = showProfile(imageC, wheel2Profile, xW2, yW2);
 showTwoImages(imagesBW, imageC, 'image wheels');
 
 %% find automatically ellipses
 
 % [wheel2, xW2, yW2]  = selectRegion(imagesBW, 'wheel2');
-s = findEllipses(imagesBW);
-
-%% 
-close all
-black = zeros(size(imagesBW));
-% showTwoImages(black, imageC, 'test12');
-black = showProfile(black, wheel1Profile, xW1(1), yW1(1));
-black = showProfile(black, wheel2Profile, xW2(1), yW2(1));
-showTwoImages(black, imageC, 'test12');
+% s = findEllipses(imagesBW);
 
 %% troviamo le bitangenti
 syms a b;
@@ -119,19 +123,60 @@ line1 = lines(:,1);
 line2 = lines(:,2);
 line3 = lines(:,3);
 line4 = lines(:,4);
-% figure
-% refline(line1(1), line1(2));
-% refline(lines(:,1), lines(:,2));
-%
-% im_four=zeros(500,500);
-% for i=1:500
-%     for j=1:500
-%         im_four(i,j)=[j i 1]*wheel1C*[j i 1]';
-%     end
-% end
-% imshow(im_four > 0);
-%
-% hold off
+
+%% Tangenti CORRETTE
+% se non si usano la funzione selectRegion funziona tutto!
+
+linesP = findLines(imagesBW, lines);
+
+linesP = showProfile(linesP, wheel1Profile, xW1, yW1);
+linesP = showProfile(linesP, wheel2Profile, xW2, yW2);
+
+figure, imshow(linesP);
+
+%% Risolviamo con la funzione
+
+R1 = [1 0 -xW1; 0 1 -yW1; 0 0 1];
+R2 = [1 0 -xW2; 0 1 -yW2; 0 0 1];
+
+C1prime = R1*wheel1C;
+C2prime = R1*wheel2C;
+
+%% troviamo le bitangenti
+syms a b;
+
+C1 = inv(C1prime);
+C2 = inv(C2prime);
+l = [a; b; 1];
+
+% A = sym('A%d%d', [2 4])
+
+% A1 = a^2*C1(1,1) + b^2*C1(2,2) + C1(3,3) + 2*a*b*C1(1,2) + 2*a*C1(1,3) + 2*b*C1(2,3);
+% A2 = a^2*C2(1,1) + b^2*C2(2,2) + C2(3,3) + 2*a*b*C2(1,2) + 2*a*C2(1,3) + 2*b*C2(2,3);
+
+A1 = l.' * C1 * l;
+A2 = l.' * C2 * l;
+sol = solve([A1 A2], [a b]);
+
+% convert symbolic values into variables with double precision
+% https://it.mathworks.com/help/symbolic/double.html
+x = double(sol.a).';
+y = double(sol.b).';
+onesV = ones(4, 1).';
+
+lines = [x; y; onesV];
+
+line1 = lines(:,1);
+line2 = lines(:,2);
+line3 = lines(:,3);
+line4 = lines(:,4);
+
+linesP = findLines(imagesBW, lines);
+
+linesP = showProfile(linesP, wheel1Profile, xW1, yW1);
+linesP = showProfile(linesP, wheel2Profile, xW2, yW2);
+
+figure(50), imshow(linesP);
 %%
 % close 5
 figure(5), imshow(black);
@@ -143,7 +188,7 @@ points2 = points2./points2(3,:);
 
 points3 = [cross(line3, line4)];
 points3 = points3./points3(3,:);
- 
+
 hold on
 
 % p3 = [points3(1) ; points3(2)];

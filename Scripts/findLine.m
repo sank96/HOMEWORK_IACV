@@ -9,6 +9,7 @@ for r=1:R
         profile(r,c)=[c r 1]*line;
     end
 end
-
-profile=double(profile<0.002 & profile>-0.002);
+profile = double(profile>0);
+profile = findEdges(profile, 'binary');
+% profile=double(profile<0.002 & profile>-0.002);
 end
