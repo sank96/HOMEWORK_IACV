@@ -1,4 +1,4 @@
-function imageProfiled = showProfile(image,imgP,x0,y0)
+function imageProfiled = showProfileOnImage(image,imgP,x0,y0)
 %SHOWPROFILE Allow to show a profile expressed by a binary image on another
 %image
 %   SHOWPROFILE(image, imgP, x0, y0) return an image that is a merge of ad
@@ -8,7 +8,7 @@ function imageProfiled = showProfile(image,imgP,x0,y0)
 
 
 imageProfiled = image;
-[R C] = size(imgP);
+[R, C] = size(imgP);
 for r = 1:R
     for c = 1:C
         if imgP(r,c) == 1

@@ -30,6 +30,18 @@ imagesBW = rgb2gray(image1);
 % imageScaled = imresize(imagesBW, 0.5);
 % mesh(imageScaled);
 
+%% TROVIAMO LE RUOTE MANUALMENTE
+
+[C1star, profile1] = findWheel(imagesBW, 'wheel1');
+% mostriamo profilo
+imageWithWheels = showProfileOnImage(imagesBW, profile1, 0, 0);
+
+[C2star, profile2] = findWheel(imagesBW, 'wheel2');
+% mostriamo profilo
+imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
+
+showTwoImages(imagesBW, imageWithWheels, 'prima ruota')
+
 %% seleziono la prima ruota
 [wheel1, xW1, yW1]  = selectRegion(imagesBW, 'wheel1');
 xW1 = xW1(1);
@@ -49,8 +61,16 @@ wheel1M = findEdges(wheel1, 'binary');
 % wheel1MC = edge(wheel1, 'canny');
 
 % ricaviamo l'ellisse
-[wheel1C, wheel1Profile] = findConic(wheel1M);
+[wheel1C, wheel1Profile, x, y] = findConic(wheel1M);
 % showTwoImages(wheel1, wheel1Profile, 'profile wheel 1');
+
+x1 = x + xW1;
+y1 = y + yW1;
+figure(100),
+imshow(imagesBW),
+hold on
+scatter(x1,y1,100,'filled');
+hold off
 
 % mostriamo profilo
 wheel1P = showProfile(wheel1, wheel1Profile, 0, 0);
@@ -98,8 +118,8 @@ showTwoImages(imagesBW, imageC, 'image wheels');
 %% troviamo le bitangenti
 syms a b;
 
-C1 = inv(wheel1C);
-C2 = inv(wheel2C);
+C1star = inv(C1);
+C2star = inv(C2);
 l = [a; b; 1];
 
 % A = sym('A%d%d', [2 4])
@@ -107,8 +127,8 @@ l = [a; b; 1];
 % A1 = a^2*C1(1,1) + b^2*C1(2,2) + C1(3,3) + 2*a*b*C1(1,2) + 2*a*C1(1,3) + 2*b*C1(2,3);
 % A2 = a^2*C2(1,1) + b^2*C2(2,2) + C2(3,3) + 2*a*b*C2(1,2) + 2*a*C2(1,3) + 2*b*C2(2,3);
 
-A1 = l.' * C1 * l;
-A2 = l.' * C2 * l;
+A1 = l.' * C1star * l;
+A2 = l.' * C2star * l;
 sol = solve([A1 A2], [a b]);
 
 % convert symbolic values into variables with double precision
@@ -145,8 +165,8 @@ C2prime = R1*wheel2C;
 %% troviamo le bitangenti
 syms a b;
 
-C1 = inv(C1prime);
-C2 = inv(C2prime);
+C1star = inv(C1prime);
+C2star = inv(C2prime);
 l = [a; b; 1];
 
 % A = sym('A%d%d', [2 4])
@@ -154,8 +174,8 @@ l = [a; b; 1];
 % A1 = a^2*C1(1,1) + b^2*C1(2,2) + C1(3,3) + 2*a*b*C1(1,2) + 2*a*C1(1,3) + 2*b*C1(2,3);
 % A2 = a^2*C2(1,1) + b^2*C2(2,2) + C2(3,3) + 2*a*b*C2(1,2) + 2*a*C2(1,3) + 2*b*C2(2,3);
 
-A1 = l.' * C1 * l;
-A2 = l.' * C2 * l;
+A1 = l.' * C1star * l;
+A2 = l.' * C2star * l;
 sol = solve([A1 A2], [a b]);
 
 % convert symbolic values into variables with double precision

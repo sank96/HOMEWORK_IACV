@@ -8,6 +8,7 @@ function [imageRegion xR yR] = selectRegion(image, name)
 
 figure('Name', 'chose region');
 imshow(image);
+title(name);
 
 hRect = imrect();
 

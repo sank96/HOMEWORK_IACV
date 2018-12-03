@@ -59,7 +59,8 @@ elseif strcmp(threshold, 'canny')
     imageFiltered = edge(imagesBW, 'canny');
 end
 
-M = mapImage(imageFiltered);
+M = imageFiltered;
+% M = mapImage(imageFiltered);
 
 end
 
