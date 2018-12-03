@@ -55,6 +55,7 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
     - [x] ottimizzare showProfile
     - [x] ottimizzare findWheel (dove c'è il tic toc) --> farlo come era fatto prima
     - [ ] ottimizzare fromLinesToProfile
+    - [ ] trovare le bitangenti --> il problema sono le inverse
 
 
 ## DOING
