@@ -49,6 +49,14 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
     - [ ] usare **erosion e dilation** sentire note audio di Ale
 
 
+- [ ] ottimizzare il codice per renderlo più veloce
+    - [ ] utilizzare il prodotto fra matrici invece che il doppio ciclo `for`
+    - [ ] [operazioni su matrici](https://it.mathworks.com/matlabcentral/answers/302402-how-to-select-some-part-of-a-matrix)
+    - [x] ottimizzare showProfile
+    - [x] ottimizzare findWheel (dove c'è il tic toc) --> farlo come era fatto prima
+    - [ ] ottimizzare fromLinesToProfile
+
+
 ## DOING
 - [ ] ho implementato un filtro di threshold con soglia, se ne potrebbe fare uno più articolato, prima fare qualche prova per capire quali sono utili!
     - [x] Binary

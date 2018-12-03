@@ -1,4 +1,4 @@
-function profile = findLine(image,line)
+function profile = fromLineToProfile(image,line)
 %FINDLINE Line is a VECTOR
 %   Detailed explanation goes here
 

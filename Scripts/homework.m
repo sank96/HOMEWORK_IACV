@@ -33,14 +33,16 @@ imagesBW = rgb2gray(image1);
 %% TROVIAMO LE RUOTE MANUALMENTE
 
 [C1, profile1] = findWheel(imagesBW, 'wheel1');
+
 % mostriamo profilo
-imageWithWheels = showProfileOnImage(imagesBW, profile1, 0, 0);
+% imageWithWheels = showProfileOnImage(imagesBW, profile1, 0, 0);
+imageWithWheels = showProfileOpt(imagesBW, profile1);
 
 [C2, profile2] = findWheel(imagesBW, 'wheel2');
 % mostriamo profilo
 imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
 
-showTwoImages(imagesBW, imageWithWheels, 'conic as wheels')
+% showTwoImages(imagesBW, imageWithWheels, 'conic as wheels')
 
 %% find automatically ellipses
 
@@ -51,6 +53,8 @@ syms a b;
 
 C1star = inv(C1);
 C2star = inv(C2);
+
+
 l = [a; b; 1];
 
 % A = sym('A%d%d', [2 4])
@@ -60,6 +64,7 @@ l = [a; b; 1];
 
 A1 = l.' * C1star * l;
 A2 = l.' * C2star * l;
+
 sol = solve([A1 A2], [a b]);
 
 % convert symbolic values into variables with double precision
@@ -77,8 +82,9 @@ line4 = lines(:,4);
 
 %% Tangenti CORRETTE
 % se non si usano la funzione selectRegion funziona tutto!
-
-linesP = findLines(imagesBW, lines);
+tic
+linesP = fromLinesToProfile(imagesBW, lines);
+toc 
 
 linesP = showProfileOnImage(linesP, profile1, 0, 0);
 linesP = showProfileOnImage(linesP, profile2, 0, 0);

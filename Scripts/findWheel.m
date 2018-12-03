@@ -13,7 +13,7 @@ figure('Name', 'find conic');
 imshow(wheelM);
 title('select 5 point')
 hold on;
-disp('click 5 points, then enter');
+% disp('click 5 points, then enter');
 [x, y]=getpts;
 scatter(x,y,100,'filled');
 
@@ -22,16 +22,26 @@ yT = y + yW;
 
 C = findConic(xT, yT);
 
-[r, c] = size(image);
-im = zeros(r, c);
-for i=1:r
-    for j=1:c
-        im(i,j)=[j i 1]*C*[j i 1]';
-    end
-end
+% vecchio codice non ottimizzato
+% tic
+% [r, c] = size(image);
+% im = zeros(r, c);
+% for i=1:r
+%     for j=1:c
+%         im(i,j)=[j i 1]*C*[j i 1]';
+%     end
+% end
+% toc
+% im = im < 0;
+% profile = findEdges(im, 'binary');
 
-im = im < 0;
-profile = findEdges(im, 'binary');
+
+sectionProfile = fromConicToProfile(wheelSelection, findConic(x,y));
+profile = zeros(size(image));
+[r, c]=size(sectionProfile);
+profile(yW:yW+r-1,xW:xW+c-1)=sectionProfile;
+
+
 
 close 'find conic';
 end

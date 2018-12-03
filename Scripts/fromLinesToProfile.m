@@ -1,4 +1,4 @@
-function profile = findLines(image, lines)
+function profile = fromLinesToProfile(image, lines)
 %FINDLINES Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -8,7 +8,7 @@ profile = zeros(size(image));
 for l=1:L
     line = lines(:,l);
     
-    profileL = findLine(image, line);
+    profileL = fromLineToProfile(image, line);
     
     [R C] = size(image);
     
