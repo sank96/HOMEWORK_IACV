@@ -36,7 +36,8 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
         1. binary threshold
         2. hard threshold
     5. troviamo la conica a partire da 5 punti
-        - utilizzare script inviato da ale su slack (chiedere prima al prof)
+        - [ ] utilizzare script inviato da ale su slack (va prima pulita)
+            - dilation & erosion
 
 2. **Geometry:**
     1. determine the ratio between the diameter of the wheel circles and the wheel-to-wheel distance
