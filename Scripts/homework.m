@@ -83,15 +83,38 @@ line4 = lines(:,4);
 %% Tangenti CORRETTE
 % se non si usano la funzione selectRegion funziona tutto!
 tic
-linesP = fromLinesToProfile(imagesBW, lines);
-toc 
+linesP = fromLinesToProfile(imagesBW, [line2 line3]);
+toc
 
 linesP = showProfileOnImage(linesP, profile1, 0, 0);
 linesP = showProfileOnImage(linesP, profile2, 0, 0);
 
 img = showProfileOnImage(imagesBW, linesP, 0,0);
-figure, imshow(img);
+testFigureImage = figure(1), imshow(img);
 
+
+%% RECTIFICATION
+v1 = [];
+for i = 1:length(lines)
+    for j = 1:length(lines)
+        l1 = lines(:,i);
+        l2 = lines(:,j);
+        if ~isequal(l1, l2)
+            v = cross(l1, l2);
+            v = v/v(3);
+            
+            if v.' * C1 * v < 1e-03 
+                if isequal(ismember(v, v1), [1;1;1])
+                    disp('trovato');
+                    v1 = [v1 v];
+                end
+                    
+                
+            end
+            
+        end
+    end
+end
 
 %%
 % close 5
