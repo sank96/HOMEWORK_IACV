@@ -80,8 +80,11 @@ line2 = lines(:,2);
 line3 = lines(:,3);
 line4 = lines(:,4);
 
-%% Tangenti CORRETTE
-% se non si usano la funzione selectRegion funziona tutto!
+%% TANGENTI & RECTIFICATION
+v1 = intersection(C1, lines);
+v1 = [v1(:,2) v1(:,1)]; % cos� la prima colonna di entramvi i vettori di punti sono i punti in alto
+v2 = intersection(C2, lines);
+
 tic
 linesP = fromLinesToProfile(imagesBW, [line2 line3]);
 toc
@@ -90,32 +93,48 @@ linesP = showProfileOnImage(linesP, profile1, 0, 0);
 linesP = showProfileOnImage(linesP, profile2, 0, 0);
 
 img = showProfileOnImage(imagesBW, linesP, 0,0);
-testFigureImage = figure(1), imshow(img);
+linesFigure = figure();
+imshow(img);
 
 
-%% RECTIFICATION
-v1 = [];
-for i = 1:length(lines)
-    for j = 1:length(lines)
-        l1 = lines(:,i);
-        l2 = lines(:,j);
-        if ~isequal(l1, l2)
-            v = cross(l1, l2);
-            v = v/v(3);
-            
-            if v.' * C1 * v < 1e-03 
-                if isequal(ismember(v, v1), [1;1;1])
-                    disp('trovato');
-                    v1 = [v1 v];
-                end
-                    
-                
-            end
-            
-        end
-    end
-end
+figure(linesFigure)
+hold on
+plot(v1(1,1), v1(2,1), 'or','MarkerSize',12, 'color', 'g');
+plot(v2(1,1), v2(2,1), 'or','MarkerSize',12, 'color', 'r');
+hold off
 
+%% BACK TRANSFORMATION
+line1 = cross(v1(:,1), v2(:,1));
+line1 = line1/line1(3);
+line2 = cross(v1(:,2), v2(:,2));
+line2 = line2/line2(3);
+
+line3 = cross(v1(:,1), v1(:,2));
+line3 = line3/line3(3);
+line4 = cross(v2(:,1), v2(:,2));
+line4 = line4/line4(3);
+
+lineInf = cross(...                 % line at infinity
+    cross(line1, line2), ...        % vanishing point
+    cross(line3, line4));          % vanishing point
+lineInf = lineInf/lineInf(3);
+
+syms x y
+xVector = [x; y; 1];
+
+A1 = lineInf.' * xVector;
+A2 = xVector.' * C1 * xVector;
+
+sol = solve([A1 A2], [x y]);
+
+% convert symbolic values into variables with double precision
+% https://it.mathworks.com/help/symbolic/double.html
+circularPoint =[double(sol.x).'; double(sol.y).'; ones(1,length(double(sol.x)))];
+I = circularPoint(:,1);
+J = circularPoint(:,2);
+
+Cinf = I*J' + I'*J;
+[U,S,V] = svd(Cinf);            % A = U*S*V'
 %%
 % close 5
 figure(5), imshow(black);
