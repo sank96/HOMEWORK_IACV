@@ -8,7 +8,6 @@ close all
 image1 = im2double(imread('Image1.jpeg'));
 image2 = im2double(imread('Image2.jpeg'));
 
-
 imagesBW = rgb2gray(image1);
 
 %% MAKE THE PICTURE SQUARED
@@ -75,18 +74,18 @@ onesV = ones(4, 1).';
 
 lines = [x; y; onesV];
 
-line1 = lines(:,1);
-line2 = lines(:,2);
-line3 = lines(:,3);
-line4 = lines(:,4);
+tan1 = lines(:,1);
+tan2 = lines(:,2);
+tan3 = lines(:,3);
+tan4 = lines(:,4);
 
-%% TANGENTI & RECTIFICATION
+%% TANGENTI
 v1 = intersection(C1, lines);
 v1 = [v1(:,2) v1(:,1)]; % cos� la prima colonna di entramvi i vettori di punti sono i punti in alto
 v2 = intersection(C2, lines);
 
 tic
-linesP = fromLinesToProfile(imagesBW, [line2 line3]);
+linesP = fromLinesToProfile(imagesBW, [tan2 tan3]);
 toc
 
 linesP = showProfileOnImage(linesP, profile1, 0, 0);
@@ -99,20 +98,28 @@ imshow(img);
 
 figure(linesFigure)
 hold on
-plot(v1(1,1), v1(2,1), 'or','MarkerSize',12, 'color', 'g');
-plot(v2(1,1), v2(2,1), 'or','MarkerSize',12, 'color', 'r');
-hold off
+plot(v1(1,:), v1(2,:), 'or','MarkerSize',12, 'color', 'g');
+plot(v2(1,:), v2(2,:), 'or','MarkerSize',12, 'color', 'r');
+
 
 %% BACK TRANSFORMATION
 line1 = cross(v1(:,1), v2(:,1));
 line1 = line1/line1(3);
 line2 = cross(v1(:,2), v2(:,2));
 line2 = line2/line2(3);
+vpoint1 = cross(line1, line2);
+vpoint1 = vpoint1/vpoint1(3);
 
 line3 = cross(v1(:,1), v1(:,2));
 line3 = line3/line3(3);
 line4 = cross(v2(:,1), v2(:,2));
 line4 = line4/line4(3);
+vpoint2 = cross(line3, line4);
+vpoint2 = vpoint2/vpoint2(3);
+
+
+plot(vpoint1(1), vpoint1(2), 'or','MarkerSize',12, 'color', 'b');
+plot(vpoint2(1), vpoint2(2), 'or','MarkerSize',12, 'color', 'b');
 
 lineInf = cross(...                 % line at infinity
     cross(line1, line2), ...        % vanishing point
@@ -133,8 +140,27 @@ circularPoint =[double(sol.x).'; double(sol.y).'; ones(1,length(double(sol.x)))]
 I = circularPoint(:,1);
 J = circularPoint(:,2);
 
+plot(I(1), I(2), 'or','MarkerSize',12, 'color', 'b');
+plot(J(1), J(2), 'or','MarkerSize',12, 'color', 'b');
+
 Cinf = I*J' + I'*J;
 [U,S,V] = svd(Cinf);            % A = U*S*V'
+Hr = V.';
+
+
+hold off
+
+%% RECTIFICATION 
+
+v1backTra = inv(Hr) * v1;
+v1backTra = [v1backTra(:,1)/v1backTra(3,1) v1backTra(:,2)/v1backTra(3,2)];
+v2backTra = inv(Hr) * v2;
+v2backTra = [v2backTra(:,1)/v2backTra(3,1) v2backTra(:,2)/v2backTra(3,2)];
+
+diameter =  pdist([v1(1,1) v1(1,2);v1(1,2) v1(2,2)],'euclidean');
+distancewtow = pdist([v1(1,1) v2(1,1);v1(1,2) v2(1,2)],'euclidean');
+diameter1 = pdist([v2(1,1) v2(1,2);v2(1,2) v2(2,2)],'euclidean');
+
 %%
 % close 5
 figure(5), imshow(black);
