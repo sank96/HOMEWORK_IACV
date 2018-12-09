@@ -48,6 +48,7 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
 1. - [ ] (1.3) pulire l'immagine per migliorare la visualizzazione dei corners
     - [ ] usare **erosion e dilation** sentire note audio di Ale
 
+- [ ] creare una struttura dati tipo **struct** per immagazzinare tutte le informazioni
 
 - [ ] ottimizzare il codice per renderlo più veloce
     - [ ] utilizzare il prodotto fra matrici invece che il doppio ciclo `for`
@@ -57,8 +58,6 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
     - [ ] ottimizzare fromLinesToProfile
     - [ ] trovare le bitangenti --> il problema sono le inverse
 
-
-## DOING
 - [ ] ho implementato un filtro di threshold con soglia, se ne potrebbe fare uno più articolato, prima fare qualche prova per capire quali sono utili!
     - [x] Binary
     - [x] hard
