@@ -118,8 +118,8 @@ vpoint2 = cross(line3, line4);
 vpoint2 = vpoint2/vpoint2(3);
 
 
-plot(vpoint1(1), vpoint1(2), 'or','MarkerSize',12, 'color', 'b');
-plot(vpoint2(1), vpoint2(2), 'or','MarkerSize',12, 'color', 'b');
+plot(vpoint1(1), vpoint1(2), 'or','MarkerSize',12, 'color', 'c');
+plot(vpoint2(1), vpoint2(2), 'or','MarkerSize',12, 'color', 'c');
 
 lineInf = cross(...                 % line at infinity
     cross(line1, line2), ...        % vanishing point
@@ -162,6 +162,8 @@ distancewtow = pdist([v1(1,1) v2(1,1);v1(1,2) v2(1,2)],'euclidean');
 diameter1 = pdist([v2(1,1) v2(1,2);v2(1,2) v2(2,2)],'euclidean');
 
 %%
+
+return
 % close 5
 figure(5), imshow(black);
 points1 = [cross(line1, line2) cross(line1, line3) cross(line1, line4)];
