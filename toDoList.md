@@ -62,5 +62,7 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
     - [x] Binary
     - [x] hard
 
+- [ ] capire cosa significa normalizzare l'immagine. ovvero, (tipo) invece di avere una coordinata 1000 ma la coordinata massima è tipo 1.
+
 ## DONE
 - [x] selezionare solo una parte dell'immagine per velocizzare la ricerca dell'immagine in precise posizioni
