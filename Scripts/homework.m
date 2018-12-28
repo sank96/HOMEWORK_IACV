@@ -147,31 +147,44 @@ J = circularPoint(:,2);
 plot(I(1), I(2), 'or','MarkerSize',12, 'color', 'b');
 plot(J(1), J(2), 'or','MarkerSize',12, 'color', 'b');
 
-Cinf = I*J' + I'*J;
+Cinf = I*J' + J*I';
 [U,S,V] = svd(Cinf);            % A = U*S*V'
 
 s11 = S(1,1);
 s22 = S(2,2);
-T = [ sqrt(s11) 0 0 ; 0 sqrt(s22) 0 ; 0 0 0];
+T = [ sqrt(s11)     0       0 ;...
+        0       sqrt(s22)   0 ;...
+        0           0       1];
+T2=[    (S(1,1))^(-0.5)         0             0; ...
+              0         (S(2,2))^(-0.5)      0; ...
+              0                0             1];
 
-Hr = T * U;
+bm = U*T;
+Hr=inv(bm);
+Hr=Hr/Hr(3,3);
 
 hold off
 
-% RECTIFICATION 
+% RECTIFICATION
+bHr = Hr;
 
-v1backTra = inv(Hr) * v1;
-v1backTra = [v1backTra(:,1)/v1backTra(3,1) v1backTra(:,2)/v1backTra(3,2)];
-v2backTra = inv(Hr) * v2;
-v2backTra = [v2backTra(:,1)/v2backTra(3,1) v2backTra(:,2)/v2backTra(3,2)];
+v1backTra = bHr*v1;
+v1bt = [v1backTra(1:2,1)/v1backTra(3,1) v1backTra(1:2,2)/v1backTra(3,2)];
+v2backTra = bHr*v2;
+v2bt = [v2backTra(1:2,1)/v2backTra(3,1) v2backTra(1:2,2)/v2backTra(3,2)];
 
-diameter =  pdist([v1(1,1) v1(1,2);v1(1,2) v1(2,2)],'euclidean')
-distancewtow = pdist([v1(1,1) v2(1,1);v1(1,2) v2(1,2)],'euclidean')
-diameter1 = pdist([v2(1,1) v2(1,2);v2(1,2) v2(2,2)],'euclidean')
+% diameter = sqrt(...
+%     (v1bt(1,1)-v1bt(1,2))*(v1bt(1,1)-v1bt(1,2)) +...
+%     (v1bt(2,1)-v1bt(2,2))*(v1bt(2,1)-v1bt(2,2)))
+% diameter1 = sqrt(...
+%     (v2bt(1,1)-v2bt(1,2))*(v2bt(1,1)-v2bt(1,2)) +...
+%     (v2bt(2,1)-v2bt(2,2))*(v2bt(2,1)-v2bt(2,2)))
+
+diameter =  pdist([v1bt(1,1) v1bt(2,1);v1bt(1,2) v1bt(2,2)],'euclidean');
+distancewtow = pdist([v1bt(1,1) v1bt(1,2);v2bt(1,1) v2bt(1,2)],'euclidean');
+diameter1 = pdist([v2bt(1,1) v2bt(2,1);v2bt(1,2) v2bt(2,2)],'euclidean');
 
 ratio = diameter/distancewtow
 ratio1 = diameter1/distancewtow
 
-%% point 2.2 
-
-
+%% point 2.2
