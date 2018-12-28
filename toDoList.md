@@ -41,7 +41,11 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
 
 2. **Geometry:**
     1. determine the ratio between the diameter of the wheel circles and the wheel-to-wheel distance
-        1.
+        - teoria su foglio
+        - Hr è la trasformazione che va dall'immagine alla realtà
+
+    2. Using also some of the detected pairs of symmetric features, calibrate the camera by determining the calibration matrix K. Assume the camera is zero-skew (but not natural).
+        - 
 
 
 ## TO DO
