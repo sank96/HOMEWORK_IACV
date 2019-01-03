@@ -45,7 +45,9 @@ Hint: use normalized image coordinates to reduce numerical errors (e.g., set ima
         - Hr è la trasformazione che va dall'immagine alla realtà
 
     2. Using also some of the detected pairs of symmetric features, calibrate the camera by determining the calibration matrix K. Assume the camera is zero-skew (but not natural).
-        - 
+        - ho utilizzato 3 coppie di direzioni perpendicolari e l'appartenza del circular point a w
+        - ho trovato K
+    3. Fix a reference frame at a suitable position on the symmetry plane of the car, and reconstruct the 3D position of some of the symmetric pairs of features relative to the above reference.
 
 
 ## TO DO
