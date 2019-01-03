@@ -32,13 +32,13 @@ imagesBW = rgb2gray(image1);
 %% point 1
 % TROVIAMO LE RUOTE MANUALMENTE
 
-[C1, profile1] = findWheel(imagesBW, 'wheel1');
+[C1, profile1] = findConic(imagesBW, 'wheel1');
 
 % mostriamo profilo
 % imageWithWheels = showProfileOnImage(imagesBW, profile1, 0, 0);
 imageWithWheels = showProfileOpt(imagesBW, profile1);
 
-[C2, profile2] = findWheel(imagesBW, 'wheel2');
+[C2, profile2] = findConic(imagesBW, 'wheel2');
 % mostriamo profilo
 imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
 
@@ -155,9 +155,6 @@ s22 = S(2,2);
 T = [ sqrt(s11)     0       0 ;...
         0       sqrt(s22)   0 ;...
         0           0       1];
-T2=[    (S(1,1))^(-0.5)         0             0; ...
-              0         (S(2,2))^(-0.5)      0; ...
-              0                0             1];
 
 bm = U*T;
 Hr=inv(bm);
@@ -188,3 +185,73 @@ ratio = diameter/distancewtow
 ratio1 = diameter1/distancewtow
 
 %% point 2.2
+% find the image of absolute conic
+
+% % equation of the absolute conic
+% I = [1 0 0; ...
+%     0 1 0;...
+%     0 0 1];
+% 
+% % transform into the image plane
+% IAC = (bHr.')*I*bHr
+% 
+% % Cholesky Decomposition
+% K = chol(IAC);
+% K = K/K(3,3)
+% 
+% K2 = chol(inv(IAC));
+% K2 = K2/K2(3,3)
+
+% %find other 2 vanishing points from sensors
+% [vps1, vps2, profile, ps1, ps2] = findVPfromC(img);
+% 
+% figure(linesFigure)
+% % imshow(profile)
+% hold on
+% plot(ps1(1,:), ps1(2,:), 'or','MarkerSize',12, 'color', 'g');
+% plot(ps2(1,:), ps2(2,:), 'or','MarkerSize',12, 'color', 'r');
+% plot(vps1(1), vps1(2), 'or','MarkerSize',12, 'color', 'c');
+% plot(vps2(1), vps2(2), 'or','MarkerSize',12, 'color', 'c');
+% hold off
+
+% find vanishing point from the car license plate
+[vps1, vps2, xT, yT] = findVPfromL(imagesBW);
+linesFigure = figure();
+imshow(imagesBW);
+hold on 
+plot(xT, yT, 'or','MarkerSize',12, 'color', 'g');
+plot(vps1(1), vps1(2), 'or','MarkerSize',12, 'color', 'c');
+plot(vps2(1), vps2(2), 'or','MarkerSize',12, 'color', 'r');
+hold off
+
+% camera matrix
+syms fxI fyI u0I v0I;
+
+KI = [fxI 0 u0I;...
+    0 fyI v0I;...
+    0 0 1];
+wstar = KI*KI.';
+w = inv(wstar);
+
+eq1 = (vpoint1.')*w*vpoint2;
+eq2 = (vpoint1.')*w*vps1;
+eq3 = (vpoint2.')*w*vps1;
+eq4 = (I.')*w*I;
+
+sol = solve([eq1 eq2 eq3 eq4], [fxI fyI u0I v0I]);
+
+fx = double(sol.fxI);
+fy = double(sol.fyI);
+u0 = double(sol.u0I);
+v0 = double(sol.v0I);
+
+fx = abs(fx(1));
+fy = abs(fy(1));
+u0 = abs(u0(1));
+v0 = abs(v0(1));
+
+K = [   fx  0   u0 ;...
+        0   fy  v0 ;...
+        0   0   1]
+iac = inv(K*K.');
+iac = iac/iac(3,3);
