@@ -94,14 +94,14 @@ linesP = showProfileOnImage(linesP, profile1, 0, 0);
 linesP = showProfileOnImage(linesP, profile2, 0, 0);
 
 img = showProfileOnImage(imagesBW, linesP, 0,0);
-linesFigure = figure();
+linesFigure = figure('name', 'visualization');
 imshow(img);
 
 
 figure(linesFigure)
 hold on
 plot(v1(1,:), v1(2,:), 'or','MarkerSize',12, 'color', 'g');
-plot(v2(1,:), v2(2,:), 'or','MarkerSize',12, 'color', 'r');
+plot(v2(1,:), v2(2,:), 'or','MarkerSize',12, 'color', 'g');
 hold off
 
 % BACK TRANSFORMATION
@@ -122,7 +122,7 @@ vpoint2 = cross(line3, line4);
 vpoint2 = vpoint2/vpoint2(3);
 
 
-plot(vpoint1(1), vpoint1(2), 'or','MarkerSize',12, 'color', 'c');
+plot(vpoint1(1), vpoint1(2), 'or','MarkerSize',12, 'color', 'r');
 plot(vpoint2(1), vpoint2(2), 'or','MarkerSize',12, 'color', 'c');
 
 lineInf = cross(...                 % line at infinity
@@ -144,8 +144,8 @@ circularPoint =[double(sol.x).'; double(sol.y).'; ones(1,length(double(sol.x)))]
 I = circularPoint(:,1);
 J = circularPoint(:,2);
 
-plot(I(1), I(2), 'or','MarkerSize',12, 'color', 'b');
-plot(J(1), J(2), 'or','MarkerSize',12, 'color', 'b');
+plot(I(1), I(2), 'or','MarkerSize',12, 'color', 'y');
+plot(J(1), J(2), 'or','MarkerSize',12, 'color', 'y');
 
 Cinf = I*J' + J*I';
 [U,S,V] = svd(Cinf);            % A = U*S*V'
@@ -187,21 +187,6 @@ ratio1 = diameter1/distancewtow
 %% point 2.2
 % find the image of absolute conic
 
-% % equation of the absolute conic
-% I = [1 0 0; ...
-%     0 1 0;...
-%     0 0 1];
-% 
-% % transform into the image plane
-% IAC = (bHr.')*I*bHr
-% 
-% % Cholesky Decomposition
-% K = chol(IAC);
-% K = K/K(3,3)
-% 
-% K2 = chol(inv(IAC));
-% K2 = K2/K2(3,3)
-
 % %find other 2 vanishing points from sensors
 % [vps1, vps2, profile, ps1, ps2] = findVPfromC(img);
 % 
@@ -216,12 +201,12 @@ ratio1 = diameter1/distancewtow
 
 % find vanishing point from the car license plate
 [vps1, vps2, xT, yT] = findVPfromL(imagesBW);
-linesFigure = figure();
-imshow(imagesBW);
+figure(linesFigure)
+% imshow(imagesBW);
 hold on 
 plot(xT, yT, 'or','MarkerSize',12, 'color', 'g');
-plot(vps1(1), vps1(2), 'or','MarkerSize',12, 'color', 'c');
-plot(vps2(1), vps2(2), 'or','MarkerSize',12, 'color', 'r');
+plot(vps1(1), vps1(2), 'or','MarkerSize',12, 'color', 'b');
+plot(vps2(1), vps2(2), 'or','MarkerSize',12, 'color', 'y');
 hold off
 
 % camera matrix
@@ -253,5 +238,40 @@ v0 = abs(v0(1));
 K = [   fx  0   u0 ;...
         0   fy  v0 ;...
         0   0   1]
-iac = inv(K*K.');
+iac = inv(K*K.');       % w 
 iac = iac/iac(3,3);
+
+
+%% point 2.3 
+close all
+vpointX = vpoint1;
+vpointY = vps1;
+vpointZ = vpoint2;
+w = iac;
+
+position2d = figure('name', '2d position');
+imshow(imagesBW);
+hold on
+% plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
+
+HrYZ = backTransformation(vpointY, vpointZ, w);
+HrXY = backTransformation(vpointX, vpointY, w);
+HrXZ = backTransformation(vpointX, vpointZ, w);
+
+p = [ HrYZ * [xT(3) ; yT(3) ; 1] ...
+    HrYZ * [xT(4) ; yT(4) ; 1]];
+p = [ p(:,1)/p(3,1) p(:,2)/p(3,2)];
+cp = (p(:,1)+p(:,2))/2;
+center = inv(HrYZ) * cp;
+% punto medio della targa in basso
+
+plot(center(1), center(2),'or','MarkerSize',12, 'color', 'r');
+
+position3d = figure('name', '3d position');
+scatter3(0, 0, 0)
+%% 
+% close all
+% T = maketform('projective',[v1(1:2,2)';v2(1:2,2)';v2(1:2,1)';v1(1:2,1)'],[ 100,100 ;0,100; 0 0; 100, 0]); 
+% figure, imshow(flipdim(imtransform(imagesBW,T),2));
+%% 
+get3dPosition([xT(1);yT(2);1], center, HrXY, HrYZ, HrXZ)
