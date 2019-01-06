@@ -189,7 +189,7 @@ ratio1 = diameter1/distancewtow
 
 % %find other 2 vanishing points from sensors
 % [vps1, vps2, profile, ps1, ps2] = findVPfromC(img);
-% 
+%
 % figure(linesFigure)
 % % imshow(profile)
 % hold on
@@ -203,7 +203,7 @@ ratio1 = diameter1/distancewtow
 [vps1, vps2, xT, yT] = findVPfromL(imagesBW);
 figure(linesFigure)
 % imshow(imagesBW);
-hold on 
+hold on
 plot(xT, yT, 'or','MarkerSize',12, 'color', 'g');
 plot(vps1(1), vps1(2), 'or','MarkerSize',12, 'color', 'b');
 plot(vps2(1), vps2(2), 'or','MarkerSize',12, 'color', 'y');
@@ -238,40 +238,98 @@ v0 = abs(v0(1));
 K = [   fx  0   u0 ;...
         0   fy  v0 ;...
         0   0   1]
-iac = inv(K*K.');       % w 
+iac = inv(K*K.');       % w
 iac = iac/iac(3,3);
 
 
-%% point 2.3 
-close all
-vpointX = vpoint1;
-vpointY = vps1;
-vpointZ = vpoint2;
+%% point 2.3
+vpX = vpoint1;
+vpY = vps1;
+vpZ = vpoint2;
 w = iac;
 
+close all
 position2d = figure('name', '2d position');
 imshow(imagesBW);
 hold on
 % plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
 
-HrYZ = backTransformation(vpointY, vpointZ, w);
-HrXY = backTransformation(vpointX, vpointY, w);
-HrXZ = backTransformation(vpointX, vpointZ, w);
+HrYZ = backTransformation(vpY, vpZ, w);
+HrXY = backTransformation(vpX, vpY, w);
+HrXZ = backTransformation(vpX, vpZ, w);
 
-p = [ HrYZ * [xT(3) ; yT(3) ; 1] ...
-    HrYZ * [xT(4) ; yT(4) ; 1]];
-p = [ p(:,1)/p(3,1) p(:,2)/p(3,2)];
-cp = (p(:,1)+p(:,2))/2;
-center = inv(HrYZ) * cp;
+% p = [ HrYZ * [xT(3) ; yT(3) ; 1] ...
+%     HrYZ * [xT(4) ; yT(4) ; 1]];
+% p = [ p(:,1)/p(3,1) p(:,2)/p(3,2)];
+% cp = (p(:,1)+p(:,2))/2;
+% center = inv(HrYZ) * cp;
+
+center = crossRatioMid([xT(3) ; yT(3) ; 1], [xT(4) ; yT(4) ; 1], vpY);
 % punto medio della targa in basso
 
+myline=[vpY.' ; center.' ; vpZ.' ; center.' ; vpX.'];
+line(myline(:,1),myline(:,2),'LineWidth',5);
 plot(center(1), center(2),'or','MarkerSize',12, 'color', 'r');
+plot([vpX(1) vpY(1) vpZ(1)], [vpX(2) vpY(2) vpZ(2)], 'or','MarkerSize',12, 'color', 'r');
+
+%%
+figure(position2d)
+hold on
+p = [v1(1,1); v1(2,1); 1];
+plot(p(1), p(2), 'or','MarkerSize',12, 'color', 'g');
+
+x1 = normalize(cross(vpX, center));
+x2 = normalize(cross(vpX, p));
+y1 = normalize(cross(vpY, center));
+y2 = normalize(cross(vpY, p));
+
+px1y2 = normalize(cross(x1, y2));
+px2y1 = normalize(cross(x2, y1));
+
+plot(px1y2(1), px1y2(2), 'or','MarkerSize',12, 'color', 'b');
+plot(px2y1(1), px2y1(2), 'or','MarkerSize',12, 'color', 'y');
+
+line1 = [center.'; px1y2.' ; p.'; px2y1.'; center.'];
+line(line1(:,1), line1(:,2), 'LineWidth', 2, 'color', 'r');
+
+pt = HrXY * p;
+pt = pt/pt(3)
+ct = HrXY * center;
+ct = ct/ct(3)
+p12t = HrXY * px1y2;
+p12t = p12t/p12t(3)
+p21t = HrXY * px2y1;
+p21t = p21t/p21t(3)
+
+
+%%
 
 position3d = figure('name', '3d position');
 scatter3(0, 0, 0)
-%% 
-% close all
-% T = maketform('projective',[v1(1:2,2)';v2(1:2,2)';v2(1:2,1)';v1(1:2,1)'],[ 100,100 ;0,100; 0 0; 100, 0]); 
-% figure, imshow(flipdim(imtransform(imagesBW,T),2));
-%% 
-get3dPosition([xT(1);yT(2);1], center, HrXY, HrYZ, HrXZ)
+%%
+get3dPosition([xT(1);yT(1);1], center, HrXY, HrYZ, HrXZ)
+
+%%
+a1 = [xT(3) ; yT(3) ; 1];
+a2 = [xT(4) ; yT(4) ; 1];
+pc = crossRatioMid(a1, a2, vpY);
+a2bis = crossRatioExt(a1, pc, vpY);
+
+close all
+figure, imshow(imagesBW)
+hold on
+p1 = [xT(4) ; yT(4) ; 1 ]
+% pause %pauses the program until keypress
+plot(p1(1), p1(2),'or','MarkerSize',12, 'color', 'b');
+plot(center(1), center(2), 'or','MarkerSize',12, 'color', 'r');
+plot(pc(1), pc(2), 'or','MarkerSize',12, 'color', 'g');
+
+pause
+[x, y]=getpts;
+scatter(x,y,100,'filled');
+p1 = [x(1) ; y(1) ; 1]
+p2 = [x(2) ; y(2) ; 1];
+p3 = [x(3) ; y(3) ; 1];
+
+p1m = crossRatioExt(p1, pc, vpY)
+plot(p1m(1), p1m(2),'or','MarkerSize',12, 'color', 'b');
