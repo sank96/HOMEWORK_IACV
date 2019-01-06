@@ -7,7 +7,7 @@ imshow(image);
 hold on;
 [x, y]=getpts;
 
-%% nargin return the number of input parameters 
+%% margin return the number of input parameters 
 if nargin > 1
     if optionalStamp == true
         plot(x,y,'.w','MarkerSize',12, 'LineWidth', 3); % plots points clicked by user with red circles
