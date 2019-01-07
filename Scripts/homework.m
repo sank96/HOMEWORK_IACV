@@ -243,6 +243,10 @@ iac = iac/iac(3,3);
 
 
 %% point 2.3
+
+% dimensione targa 
+% 520 mm × 110 mm;
+
 vpX = vpoint1;
 vpY = vps1;
 vpZ = vpoint2;
@@ -268,9 +272,24 @@ center = crossRatioMid([xT(3) ; yT(3) ; 1], [xT(4) ; yT(4) ; 1], vpY);
 % punto medio della targa in basso
 
 myline=[vpY.' ; center.' ; vpZ.' ; center.' ; vpX.'];
-line(myline(:,1),myline(:,2),'LineWidth',5);
+line(myline(:,1),myline(:,2),'LineWidth',1, 'color', 'c');
 plot(center(1), center(2),'or','MarkerSize',12, 'color', 'r');
 plot([vpX(1) vpY(1) vpZ(1)], [vpX(2) vpY(2) vpZ(2)], 'or','MarkerSize',12, 'color', 'r');
+
+
+
+%%
+p2 = [xT(3); yT(3); 1];
+p1 = [xT(4); yT(4); 1];
+plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
+
+p2m = normalize((HrYZ*p2));
+p1m = normalize((HrYZ*p1));
+cm = normalize((HrYZ*center));
+[p1m cm p2m]
+
+d1 = pdist([p1m(1:2).'; cm(1:2).'], 'euclidean');
+d2 = pdist([p2m(1:2).'; cm(1:2).'], 'euclidean');
 
 %%
 figure(position2d)
@@ -282,15 +301,31 @@ x1 = normalize(cross(vpX, center));
 x2 = normalize(cross(vpX, p));
 y1 = normalize(cross(vpY, center));
 y2 = normalize(cross(vpY, p));
+z1 = normalize(cross(vpZ, center));
+z2 = normalize(cross(vpZ, p));
 
 px1y2 = normalize(cross(x1, y2));
 px2y1 = normalize(cross(x2, y1));
+py1z2 = normalize(cross(y1, z2));
+py2z1 = normalize(cross(y2, z1));
+pz1x2 = normalize(cross(z1, x2));
+pz2x1 = normalize(cross(z2, x1));
 
 plot(px1y2(1), px1y2(2), 'or','MarkerSize',12, 'color', 'b');
-plot(px2y1(1), px2y1(2), 'or','MarkerSize',12, 'color', 'y');
+plot(px2y1(1), px2y1(2), 'or','MarkerSize',12, 'color', 'b');
 
+plot(py1z2(1), py1z2(2), 'or','MarkerSize',12, 'color', 'r');
+plot(py2z1(1), py2z1(2), 'or','MarkerSize',12, 'color', 'r');
+
+plot(pz1x2(1), pz1x2(2), 'or','MarkerSize',12, 'color', 'g');
+plot(pz2x1(1), pz2x1(2), 'or','MarkerSize',12, 'color', 'g');
+
+line2 = [center.'; py1z2.' ; p.'; py2z1.'; center.'];
+line(line2(:,1), line2(:,2), 'LineWidth', 2, 'color', 'r');
+line3 = [center.'; pz1x2.' ; p.'; pz2x1.'; center.'];
+line(line3(:,1), line3(:,2), 'LineWidth', 2, 'color', 'g');
 line1 = [center.'; px1y2.' ; p.'; px2y1.'; center.'];
-line(line1(:,1), line1(:,2), 'LineWidth', 2, 'color', 'r');
+line(line1(:,1), line1(:,2), 'LineWidth', 2, 'color', 'b');
 
 pt = HrXY * p;
 pt = pt/pt(3)
@@ -303,9 +338,36 @@ p21t = p21t/p21t(3)
 
 
 %%
-
+close all
 position3d = figure('name', '3d position');
-scatter3(0, 0, 0)
+
+scatter3(0, 0, 0, 'r', 'filled')
+hold on
+scatter3(0, d1, 0, 'g', 'filled')
+scatter3(0, -d2, 0, 'g', 'filled')
+
+
+%%
+[p1xy p1yz p1xz] = get3dPosition(p1, center, HrXY, HrYZ, HrXZ);
+[cxy cyz cxz] = get3dPosition(center, center, HrXY, HrYZ, HrXZ);
+[p2xy p2yz p2xz] = get3dPosition(p2, center, HrXY, HrYZ, HrXZ);
+disp('XY')
+[p1xy cxy p2xy]
+[pdist([p1xy(1:2).';cxy(1:2).'], 'euclidean') ...
+    pdist([p2xy(1:2).';cxy(1:2).'], 'euclidean')...
+    pdist([p1xy(1:2).';p2xy(1:2).'], 'euclidean')]
+disp('YZ')
+[p1yz cyz p2yz]
+[pdist([p1yz(1:2).';cyz(1:2).'], 'euclidean') ...
+    pdist([p2yz(1:2).';cyz(1:2).'], 'euclidean')...
+    pdist([p1yz(1:2).';p2yz(1:2).'], 'euclidean')]
+disp('XZ')
+[p1xz cxz p2xz]
+[pdist([p1xz(1:2).';cxz(1:2).'], 'euclidean') ...
+    pdist([p2xz(1:2).';cxz(1:2).'], 'euclidean')...
+    pdist([p1xz(1:2).';p2xz(1:2).'], 'euclidean')]
+
+
 %%
 get3dPosition([xT(1);yT(1);1], center, HrXY, HrYZ, HrXZ)
 
