@@ -307,6 +307,7 @@ scatter3(0, -dx2, 0, 'g', 'filled')
 scatter3(0, 0, dz, 'b', 'filled')
 scatter3(0, dx3, dz, 'g', 'filled')
 scatter3(0, -dx4, dz, 'g', 'filled')
+pause
 
 str = 'yes';
 while strcmp(str,'yes')
