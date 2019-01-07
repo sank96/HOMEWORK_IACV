@@ -277,19 +277,54 @@ plot(center(1), center(2),'or','MarkerSize',12, 'color', 'r');
 plot([vpX(1) vpY(1) vpZ(1)], [vpX(2) vpY(2) vpZ(2)], 'or','MarkerSize',12, 'color', 'r');
 
 
-
-%%
 p2 = [xT(3); yT(3); 1];
 p1 = [xT(4); yT(4); 1];
-plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
+p3 = [xT(1); yT(1); 1];
+p4 = [xT(2); yT(2); 1];
+plot(xT(1:4), yT(1:4),'or','MarkerSize',12, 'color', 'g');
+pm = crossRatioMid([xT(1) ; yT(1) ; 1], [xT(2) ; yT(2) ; 1], vpY);
+plot(pm(1), pm(2), 'or', 'markersize', 12, 'color', 'b');
 
+pmm = normalize((HrYZ*pm));
+p4m = normalize((HrYZ*p4));
+p3m = normalize((HrYZ*p3));
 p2m = normalize((HrYZ*p2));
 p1m = normalize((HrYZ*p1));
 cm = normalize((HrYZ*center));
-[p1m cm p2m]
+dx1 = pdist([p1m(1:2).'; cm(1:2).'], 'euclidean');
+dx2 = pdist([p2m(1:2).'; cm(1:2).'], 'euclidean');
+dz = pdist([cm(1:2).'; pmm(1:2).'], 'euclidean');
+dx3 = pdist([p3m(1:2).'; pmm(1:2).'], 'euclidean');
+dx4 = pdist([p4m(1:2).'; pmm(1:2).'], 'euclidean');
 
-d1 = pdist([p1m(1:2).'; cm(1:2).'], 'euclidean');
-d2 = pdist([p2m(1:2).'; cm(1:2).'], 'euclidean');
+
+pause
+position3d = figure('name', '3d position');
+scatter3(0, 0, 0, 'r', 'filled')
+hold on
+scatter3(0, dx1, 0, 'g', 'filled')
+scatter3(0, -dx2, 0, 'g', 'filled')
+scatter3(0, 0, dz, 'b', 'filled')
+scatter3(0, dx3, dz, 'g', 'filled')
+scatter3(0, -dx4, dz, 'g', 'filled')
+
+str = 'yes';
+while strcmp(str,'yes')
+    plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY)
+    pause
+    prompt = 'Do you want select more points? Y/N [Y]: ';
+    str = input(prompt,'s');
+    if isempty(str)
+        str = 'yes';
+    elseif str == 'n' || str == 'N'
+        str = 'no';
+    else 
+        str = 'yes';
+    end
+end
+
+%% point 2.4
+
 
 %%
 figure(position2d)
@@ -328,70 +363,16 @@ line1 = [center.'; px1y2.' ; p.'; px2y1.'; center.'];
 line(line1(:,1), line1(:,2), 'LineWidth', 2, 'color', 'b');
 
 pt = HrXY * p;
-pt = pt/pt(3)
+pt = pt/pt(3);
 ct = HrXY * center;
-ct = ct/ct(3)
+ct = ct/ct(3);
 p12t = HrXY * px1y2;
-p12t = p12t/p12t(3)
+p12t = p12t/p12t(3);
 p21t = HrXY * px2y1;
-p21t = p21t/p21t(3)
+p21t = p21t/p21t(3);
 
+dpc = pdist([pt(1:2).';ct(1:2).'], 'euclidean')
+d12c = pdist([p12t(1:2).';ct(1:2).'], 'euclidean')
+d21c = pdist([p21t(1:2).';ct(1:2).'], 'euclidean')
+sqrt(d12c*d12c + d21c*d21c)
 
-%%
-close all
-position3d = figure('name', '3d position');
-
-scatter3(0, 0, 0, 'r', 'filled')
-hold on
-scatter3(0, d1, 0, 'g', 'filled')
-scatter3(0, -d2, 0, 'g', 'filled')
-
-
-%%
-[p1xy p1yz p1xz] = get3dPosition(p1, center, HrXY, HrYZ, HrXZ);
-[cxy cyz cxz] = get3dPosition(center, center, HrXY, HrYZ, HrXZ);
-[p2xy p2yz p2xz] = get3dPosition(p2, center, HrXY, HrYZ, HrXZ);
-disp('XY')
-[p1xy cxy p2xy]
-[pdist([p1xy(1:2).';cxy(1:2).'], 'euclidean') ...
-    pdist([p2xy(1:2).';cxy(1:2).'], 'euclidean')...
-    pdist([p1xy(1:2).';p2xy(1:2).'], 'euclidean')]
-disp('YZ')
-[p1yz cyz p2yz]
-[pdist([p1yz(1:2).';cyz(1:2).'], 'euclidean') ...
-    pdist([p2yz(1:2).';cyz(1:2).'], 'euclidean')...
-    pdist([p1yz(1:2).';p2yz(1:2).'], 'euclidean')]
-disp('XZ')
-[p1xz cxz p2xz]
-[pdist([p1xz(1:2).';cxz(1:2).'], 'euclidean') ...
-    pdist([p2xz(1:2).';cxz(1:2).'], 'euclidean')...
-    pdist([p1xz(1:2).';p2xz(1:2).'], 'euclidean')]
-
-
-%%
-get3dPosition([xT(1);yT(1);1], center, HrXY, HrYZ, HrXZ)
-
-%%
-a1 = [xT(3) ; yT(3) ; 1];
-a2 = [xT(4) ; yT(4) ; 1];
-pc = crossRatioMid(a1, a2, vpY);
-a2bis = crossRatioExt(a1, pc, vpY);
-
-close all
-figure, imshow(imagesBW)
-hold on
-p1 = [xT(4) ; yT(4) ; 1 ]
-% pause %pauses the program until keypress
-plot(p1(1), p1(2),'or','MarkerSize',12, 'color', 'b');
-plot(center(1), center(2), 'or','MarkerSize',12, 'color', 'r');
-plot(pc(1), pc(2), 'or','MarkerSize',12, 'color', 'g');
-
-pause
-[x, y]=getpts;
-scatter(x,y,100,'filled');
-p1 = [x(1) ; y(1) ; 1]
-p2 = [x(2) ; y(2) ; 1];
-p3 = [x(3) ; y(3) ; 1];
-
-p1m = crossRatioExt(p1, pc, vpY)
-plot(p1m(1), p1m(2),'or','MarkerSize',12, 'color', 'b');
