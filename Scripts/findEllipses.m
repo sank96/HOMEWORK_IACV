@@ -1,5 +1,5 @@
 function s = findEllipses(image)
-%FINDELLIPSES Summary of this function goes here
+%FINDELLIPSES Usefull to find ellipses in an image
 %   Detailed explanation goes here
 
 im_orig=image;

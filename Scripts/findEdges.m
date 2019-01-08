@@ -5,6 +5,7 @@ function M = findEdges(imagesBW, threshold)
 %   highlighted. The implemented alghoritms are:
 %   - 'binary' threshold
 %   - 'hard' threshold  
+%   - 'canny' 
 
 %% Building filters as smoothing + differentiating filters
 
@@ -37,9 +38,6 @@ dyS=conv2(sx,diffy);
 Gx=conv2(imagesBW , dxS , 'same');
 Gy=conv2(imagesBW , dyS , 'same');
 
-%figure(3),imshow(Gx, []),title('horizontal derivative')
-%figure(4),imshow(Gy, []),title('vertical derivative')
-
 % Gradient Norm
 GradNorm=sqrt(Gx.^2 + Gy.^2);
 
@@ -50,7 +48,7 @@ GradNorm(end - BORDER : end, :) = 0;
 GradNorm(:, 1 : BORDER) = 0; 
 GradNorm(:, end - BORDER : end) = 0;
 
-%% qui aggiungere altre possibili azioni in base alla threshold
+% added more thresold filters
 if strcmp(threshold, 'hard')
     imageFiltered = filterHardThreshold(GradNorm);
 elseif strcmp(threshold, 'binary')
@@ -60,7 +58,6 @@ elseif strcmp(threshold, 'canny')
 end
 
 M = imageFiltered;
-% M = mapImage(imageFiltered);
 
 end
 

@@ -11,70 +11,35 @@ image2 = im2double(imread('Image2.jpeg'));
 imagesBW = rgb2gray(image1);
 % figure, imshow(imagesBW)
 
-%% MAKE THE PICTURE SQUARED
-% [ver_size hor_size] = size(imagesBW);
-% del = (hor_size-ver_size)/2 ;
-% imagesBW=imagesBW(:, del: (hor_size-del)-1);
-% figure, imshow(imagesBW);
-
-
 %% custom grayScale filter
 % imagesBWFiltered = 0.299*images(:,:,1) + 0.587*images(:,:,2) + 0.114*images(:,:,3);
 % showTwoImages(images, imagesBW, 'ImageBWFiltered');
-
-%% comparison BW
+% comparison BW
 % showTwoImages(imagesBW, imagesBWFiltered, 'comparisonBW');
 
 %% Grafico dell'immagine
-% imageScaled = imresize(imagesBW, 0.5);
+% figure
+% imageScaled = imresize(imagesBW, 0.1);
 % mesh(imageScaled);
 
 %% point 1
 % TROVIAMO LE RUOTE MANUALMENTE
 
+% find matric conic and profile
 [C1, profile1] = findConic(imagesBW, 'wheel1');
-
-% mostriamo profilo
-% imageWithWheels = showProfileOnImage(imagesBW, profile1, 0, 0);
+% merge the conic and the image
 imageWithWheels = showProfileOpt(imagesBW, profile1);
 
 [C2, profile2] = findConic(imagesBW, 'wheel2');
-% mostriamo profilo
 imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
 
 % showTwoImages(imagesBW, imageWithWheels, 'conic as wheels')
-
-%% find automatically ellipses
-
+% find automatically ellipses
 % s = findEllipses(imagesBW);
 
 %% point 2.1
-% bitangenti
-syms a b;
-
-C1star = inv(C1);
-C2star = inv(C2);
-
-
-l = [a; b; 1];
-
-% A = sym('A%d%d', [2 4])
-
-% A1 = a^2*C1(1,1) + b^2*C1(2,2) + C1(3,3) + 2*a*b*C1(1,2) + 2*a*C1(1,3) + 2*b*C1(2,3);
-% A2 = a^2*C2(1,1) + b^2*C2(2,2) + C2(3,3) + 2*a*b*C2(1,2) + 2*a*C2(1,3) + 2*b*C2(2,3);
-
-A1 = l.' * C1star * l;
-A2 = l.' * C2star * l;
-
-sol = solve([A1 A2], [a b]);
-
-% convert symbolic values into variables with double precision
-% https://it.mathworks.com/help/symbolic/double.html
-x = double(sol.a).';
-y = double(sol.b).';
-onesV = ones(4, 1).';
-
-lines = [x; y; onesV];
+% calculate bitanget
+lines = bitanget(C1, C2);
 
 tan1 = lines(:,1);
 tan2 = lines(:,2);
@@ -244,8 +209,8 @@ iac = iac/iac(3,3);
 
 %% point 2.3
 
-% dimensione targa 
-% 520 mm × 110 mm;
+% dimensione targa
+% 520 mm ï¿½ 110 mm;
 
 vpX = vpoint1;
 vpY = vps1;
@@ -281,9 +246,9 @@ p2 = [xT(3); yT(3); 1];
 p1 = [xT(4); yT(4); 1];
 p3 = [xT(1); yT(1); 1];
 p4 = [xT(2); yT(2); 1];
-plot(xT(1:4), yT(1:4),'or','MarkerSize',12, 'color', 'g');
+plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
 pm = crossRatioMid([xT(1) ; yT(1) ; 1], [xT(2) ; yT(2) ; 1], vpY);
-plot(pm(1), pm(2), 'or', 'markersize', 12, 'color', 'b');
+% plot(pm(1), pm(2), 'or', 'markersize', 12, 'color', 'b');
 
 pmm = normalize((HrYZ*pm));
 p4m = normalize((HrYZ*p4));
@@ -304,9 +269,9 @@ scatter3(0, 0, 0, 'r', 'filled')
 hold on
 scatter3(0, dx1, 0, 'g', 'filled')
 scatter3(0, -dx2, 0, 'g', 'filled')
-scatter3(0, 0, dz, 'b', 'filled')
-scatter3(0, dx3, dz, 'g', 'filled')
-scatter3(0, -dx4, dz, 'g', 'filled')
+% scatter3(0, 0, dz, 'b', 'filled')
+% scatter3(0, dx3, dz, 'g', 'filled')
+% scatter3(0, -dx4, dz, 'g', 'filled')
 pause
 
 str = 'yes';
@@ -319,12 +284,46 @@ while strcmp(str,'yes')
         str = 'yes';
     elseif str == 'n' || str == 'N'
         str = 'no';
-    else 
+    else
         str = 'yes';
     end
 end
 
 %% point 2.4
+Om = K(:,3);
+
+figure(position2d)
+hold on
+plot(Om(1), Om(2), 'or', 'markersize', 12, 'color', 'r')
+
+a = pdist([vpZ(1:2).'; vpX(1:2).'], 'euclidean');
+b = pdist([Om(1:2).'; vpZ(1:2).'], 'euclidean');
+c = pdist([Om(1:2).'; vpX(1:2).'], 'euclidean');
+
+focalDistance = sqrt((a*a - c*c - b*b)/2);
+%%
+[Mit1, omegaInf, N] = svd(w);
+T1 = [ sqrt(omegaInf(1,1))     0                 0 ;...
+        0                sqrt(omegaInf(2,2))     0 ;...
+        0                      0            sqrt(omegaInf(3,3))];
+
+Mit = Mit1 * T1;
+Mi = Mit.';
+M = inv(Mi);
+
+Rcw1= inv(K)*M;
+Rcw = [ Rcw1(:,1)/norm(Rcw1(:,1)) ...
+        Rcw1(:,2)/norm(Rcw1(:,2)) ...
+        Rcw1(:,3)/norm(Rcw1(:,3))];
+
+
+Rwc = inv(Rcw);
+p1w = [0; dx1; 0];
+p2w = [0; -dx2; 0];
+p1c = Rwc * p1w
+p2c = Rwc * p2w
+pmc = (p1c+p2c)
+
 
 
 %%
@@ -376,4 +375,3 @@ dpc = pdist([pt(1:2).';ct(1:2).'], 'euclidean')
 d12c = pdist([p12t(1:2).';ct(1:2).'], 'euclidean')
 d21c = pdist([p21t(1:2).';ct(1:2).'], 'euclidean')
 sqrt(d12c*d12c + d21c*d21c)
-
