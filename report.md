@@ -51,4 +51,93 @@ $$
 To give the possibility to visualize on the original image the conics just detected I implemented the function `fromConicToProfile()` that return a binary image with all zero except the points of the conic. Moreover `showProfileOpt()` return ad image as the original except in the point of the conic that are white. I optimized this function reducing its computational time of a tenth. Originally I use two *for loops* linked and spent 3/4 seconds, after changing approach I used matrix and logical operations that are more efficient and optimized.
 
 ## Determine the ratio between diameter and wheel-to-wheel distance
-Using the C matrices calculated in the previous point, I calculated the lines tangent both conics. To do this I used the dual conic, the set of line such that $$$$
+Using the C matrices calculated in the previous point, I calculated the lines tangent both conics. To do this I used the dual conic, the set of line such that  
+$$ \underline{l} \cdot C^*  \cdot \underline{l}$$
+$$
+\begin{cases}
+\underline{l} \cdot C_1^*  \cdot \underline{l}
+\\
+\underline{l} \cdot C_2^*  \cdot \underline{l}
+\end{cases}
+\Longrightarrow \text{4 lines}
+$$
+
+<div style="text-align: center"><img src=images\bitanget.png style="text-align:center" height=200></div>
+
+After that I have to calculate the back transformation matrix necessary to calculate the ratio between diameter and distance wheel-to-wheel.
+
+As seen during a lecture we are able to calculate the matrix with the image of two pair of lines and a conic.
+
+First of all I calculated the pair of parallel lines `line1 & line2` and `line3 & line4`. Also from line we find vanishing points that represent the direction of parallel lines, respectively `vpoint1 & vpoint2`.
+
+Secondly I found the line at infinity, that is the set of vanishing points.
+
+Moreover, we studied that every conic intersect the line at infinity in two points `I, J`, called circular point, because every conic intersect the line at infinity in this two point.
+$$
+I =
+\left[
+\begin{split}
+1
+\\i
+\\0
+\end{split}
+\right]
+\qquad J =
+\left[
+\begin{split}
+1
+\\-i
+\\0
+\end{split}
+\right]
+$$
+
+So, I calculate the image of circular points:
+$$
+\begin{cases}
+\underline{l_{\infty}'} \ \underline{x} = 0
+\\ \underline{x}^T C \underline{x} = 0
+\end{cases}
+\Longrightarrow I', J'
+$$
+The image of absolute conic at infinity is defines as:
+$$
+C^{*'}_{\infty} = I' J'^T + I'^T J'
+$$
+With the SVD decomposition we are able to have three matrices `U, S, V` such that:
+$$
+svd(C^{*'}_{\infty}) = U*S*V'
+$$
+In addition we know that we can calculate the image of absolute conic at infinity with the similarity `Hr`. Knowing this, and the transformation rule of conic we can write
+$$
+C^{*}_{\infty} = Hr \cdot C^{*'}_{\infty} \cdot Hr^T
+\\
+C^{*'}_{\infty} = Hr^{-1} \cdot C^{*}_{\infty} \cdot Hr^{-T}
+\\
+C^{*}_{\infty} =
+\left[
+\begin{split}
+1 \quad &  &
+\\ & 1 \quad &
+\\ & & 0
+\end{split}
+\right]
+
+\\
+Hr^{-1} = U \qquad C^{*}_{\infty} = S
+$$
+In my case the matrix S isn't the matrix of absolute conic at infinity, so I decomposed it into three matrices
+$$
+S = T \ C^{*'}_{\infty} \ T
+\\
+Hr = (UT)^{-1}e
+$$
+
+Applying the back transformation to the intersection points `v1, v2` (intersection between tangents and conics, found previously), we can calculate the diameter of wheels and the distance between wheel-to-wheel (from the center of the wheels).
+```
+>> ratio = diameter/distancewtow
+
+ratio =
+
+    0.1813
+```

@@ -40,24 +40,25 @@ imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
 %% point 2.1
 % calculate bitanget
 lines = bitanget(C1, C2);
-
 tan1 = lines(:,1);
-tan2 = lines(:,2);
-tan3 = lines(:,3);
+tan2 = lines(:,2);  % good one
+tan3 = lines(:,3);  % good one
 tan4 = lines(:,4);
 
-% tangenti
+% tangent points
 v1 = intersection(C1, lines);
-v1 = [v1(:,2) v1(:,1)]; % la prima colonna di entrambi i vettori di punti sono i punti in alto
+v1 = [v1(:,2) v1(:,1)]; % the first column represents the upper point in both cases
 v2 = intersection(C2, lines);
 
+% display the line profile in a binary image
 tic
 linesP = fromLinesToProfile(imagesBW, [tan2 tan3]);
 toc
-
+% add the conic profile
 linesP = showProfileOnImage(linesP, profile1, 0, 0);
 linesP = showProfileOnImage(linesP, profile2, 0, 0);
 
+% show the image with tangent and conic
 img = showProfileOnImage(imagesBW, linesP, 0,0);
 linesFigure = figure('name', 'visualization');
 imshow(img);
@@ -77,14 +78,14 @@ line1 = line1/line1(3);
 line2 = cross(v1(:,2), v2(:,2));
 line2 = line2/line2(3);
 vpoint1 = cross(line1, line2);
-vpoint1 = vpoint1/vpoint1(3);
+vpoint1 = vpoint1/vpoint1(3);   % first vanishing point
 
 line3 = cross(v1(:,1), v1(:,2));
 line3 = line3/line3(3);
 line4 = cross(v2(:,1), v2(:,2));
 line4 = line4/line4(3);
 vpoint2 = cross(line3, line4);
-vpoint2 = vpoint2/vpoint2(3);
+vpoint2 = vpoint2/vpoint2(3);   % second vanishing point
 
 
 plot(vpoint1(1), vpoint1(2), 'or','MarkerSize',12, 'color', 'r');
@@ -112,9 +113,14 @@ J = circularPoint(:,2);
 plot(I(1), I(2), 'or','MarkerSize',12, 'color', 'y');
 plot(J(1), J(2), 'or','MarkerSize',12, 'color', 'y');
 
+% image of absolute conic at infinity 
 Cinf = I*J' + J*I';
 [U,S,V] = svd(Cinf);            % A = U*S*V'
 
+% use T to transform S into 
+% [1       ]
+% [   1    ]
+% [       1]
 s11 = S(1,1);
 s22 = S(2,2);
 T = [ sqrt(s11)     0       0 ;...
@@ -124,7 +130,7 @@ T = [ sqrt(s11)     0       0 ;...
 bm = U*T;
 Hr=inv(bm);
 Hr=Hr/Hr(3,3);
-
+% similarity matrix
 hold off
 
 % RECTIFICATION
