@@ -8,6 +8,7 @@ for i=1:r
         im(i,j)=[j i 1]*C*[j i 1]';
     end
 end
+% figure,imshow(im)
 im = im < 0;
 im = findEdges(im, 'binary');
 end

@@ -62,12 +62,12 @@ figure,imshow([erd1 erd3])
 
 %%
 close all
-region = selectRegion(im, 'selection');
-se1 = strel('disk', 4);
-dil1 = imdilate(findEdges(region, 'canny'), se1);
-figure('name','dilation'), imshow(dil1)
-findEllipses(dil1);
+clc
 
+[C3, profile3] = findEllipses(imagesBW);
+[C4, profile4] = findConic(imagesBW, 'wheel1');
+figure('name', 'automatic'),imshow(showProfileOpt(imagesBW, profile3))
+figure('name', 'manual'),imshow(showProfileOpt(imagesBW, profile4))
 
 
 %% point 2.1
