@@ -1,4 +1,4 @@
-function [C, profile] = findConic(image, name, edges)
+function [C, profile] = findConic(image, name)
 %FINDCONIC Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -9,12 +9,15 @@ function [C, profile] = findConic(image, name, edges)
 xW = xW(1);
 yW = yW(1);
 
-% compute edge detection if request
-if nargin == 2 
-    wheelM = findEdges(wheelSelection, 'binary');
-else 
-    wheelM = wheelSelection;
-end
+wheelM = findEdges(wheelSelection, 'binary');
+% % compute edge detection if request
+% if nargin == 2 
+%     
+% elseif edges == -1
+%     wheelM = wheelSelection;
+% else 
+%     wheelM = findEdges(wheelSelection, 'custom', edges);
+% end
 
 % display the input image in order to choose 5 points
 figure('Name', 'find conic');

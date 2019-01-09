@@ -1,10 +1,11 @@
-function M = findEdges(imagesBW, threshold)
+function M = findEdges(imagesBW, threshold, value)
 %FINDCORNERS You can calculate the edges in your image setted the alghoritm
 %to use
 %   FINDCORNERS(imagesBW, threshold) return ad immagine in which edges are
 %   highlighted. The implemented alghoritms are:
 %   - 'binary' threshold
-%   - 'hard' threshold  
+%   - 'hard' threshold 
+%   - 'custom'
 %   - 'canny' 
 
 %% Building filters as smoothing + differentiating filters
@@ -55,6 +56,8 @@ elseif strcmp(threshold, 'binary')
     imageFiltered = filterBinaryThreshold(GradNorm);
 elseif strcmp(threshold, 'canny')
     imageFiltered = edge(imagesBW, 'canny');
+elseif strcmp(threshold, 'custom')
+    imageFiltered = filterCustomThreshold(GradNorm, value);
 end
 
 M = imageFiltered;

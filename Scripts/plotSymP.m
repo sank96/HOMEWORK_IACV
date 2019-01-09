@@ -1,4 +1,4 @@
-function [] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY)
+function [P1, P2, p1, p2] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY)
 %PLOTSYMP Summary of this function goes here
 %   Detailed explanation goes here
 % get a pair of symmetric points and plot them 2d and 3d
@@ -36,9 +36,9 @@ else
     z = -1;
 end
 if cmx-pmx<=0
-    x = 1;
-else 
     x = -1;
+else 
+    x = 1;
 end
 
 % distance between each point to midpoint in YZ plane
@@ -64,6 +64,9 @@ hold on
 scatter3(x*dx, -d, z*dz, 'g', 'filled')
 scatter3(x*dx, d, z*dz, 'g', 'filled')
 scatter3(x*dx, 0, z*dz, 'b', 'filled')
+
+P1 = [x*dx; -d; z*dz; 1];
+P2 = [x*dx; d; z*dz; 1];
 
 end
 

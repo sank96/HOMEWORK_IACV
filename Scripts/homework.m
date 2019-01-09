@@ -37,6 +37,39 @@ imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
 % find automatically ellipses
 % s = findEllipses(imagesBW);
 
+%% erosion and delation
+close all
+im = imagesBW;
+% region = selectRegion(im, 'region');
+% figure, imshow(findEdges(region, 'canny'))
+% rec = findEdges(region, 'canny');
+
+figure, imshow(findEdges(im, 'canny'))
+imc = findEdges(im, 'canny');
+
+i = 3;
+i1 = 4;
+SE = strel('square', i);
+SE1 = strel('square', i1);
+dil = imdilate(imc,SE);
+dil1 = imdilate(imc,SE1);
+name = sprintf('square dilation %d & %d', i, i1);
+showTwoImages(dil, dil1, name)
+
+erd1 = imerode(dil1, SE);
+erd3 = imerode(dil1, SE1);
+figure,imshow([erd1 erd3])
+
+%%
+close all
+region = selectRegion(im, 'selection');
+se1 = strel('disk', 4);
+dil1 = imdilate(findEdges(region, 'canny'), se1);
+figure('name','dilation'), imshow(dil1)
+findEllipses(dil1);
+
+
+
 %% point 2.1
 % calculate bitanget
 lines = bitanget(C1, C2);
@@ -242,12 +275,11 @@ plot([vpX(1) vpY(1) vpZ(1)], [vpX(2) vpY(2) vpZ(2)], 'or','MarkerSize',12, 'colo
 p2 = [xT(3); yT(3); 1];
 p1 = [xT(4); yT(4); 1];
 plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
-% pm = crossRatioMid([xT(1) ; yT(1) ; 1], [xT(2) ; yT(2) ; 1], vpY);
 
-% pmm = normalize((HrYZ*pm));
 % symmetric point
 p2m = normalize((HrYZ*p2));
 p1m = normalize((HrYZ*p1));
+
 % center
 cm = normalize((HrYZ*center));
 % distance from center to p1 and p2 in YZ plane
@@ -263,104 +295,108 @@ scatter3(0, dx1, 0, 'g', 'filled')
 scatter3(0, -dx2, 0, 'g', 'filled')
 pause
 
+imagePoints = [];
+points= [];
+[pr, pc] = size(imagePoints);
+
 str = 'yes';
 while strcmp(str,'yes')
-    plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY)
+    [PA1, PA2, pa1, pa2] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY);
+    [pr, pc] = size(imagePoints);
+    imagePoints(:, pc+1:pc+2) = [pa1 pa2];
+    points(:, pc+1:pc+2) = [PA1 PA2];
+%     imagePoints = [imagePoints PA1 PA2]
+    [pr, pc] = size(imagePoints);
     pause
     prompt = 'Do you want select more points? Y/N [Y]: ';
     str = input(prompt,'s');
     if isempty(str)
         str = 'yes';
     elseif str == 'n' || str == 'N'
-        str = 'no';
+        if pc < 6
+            str = 'yes';
+            disp('find at least 3 pairs of points')
+        else
+            str = 'no';
+        end
     else
         str = 'yes';
     end
 end
 
 %% point 2.4
-Om = K(:,3);
+p4 = [xT(2); yT(2); 1];
+p3 = [xT(1); yT(1); 1];
+pm = crossRatioMid([xT(1) ; yT(1) ; 1], [xT(2) ; yT(2) ; 1], vpY);
 
-figure(position2d)
+% projection on YZ plane
+p3m = normalize(HrYZ*p3);       % P1
+p4m = normalize(HrYZ*p4);       % P2
+pmm = normalize(HrYZ*pm);       % midpoint
+% projection on XY plane
+pmx = normalize(HrXY*pm);       % midpoint
+cmx = normalize(HrXY*center);   % center
+
+% distance between each point to midpoint in YZ plane
+d3 = pdist([p3m(1:2).'; pmm(1:2).'], 'euclidean');
+d4 = pdist([p4m(1:2).'; pmm(1:2).'], 'euclidean');
+d = (d3+d4)/2;  % media of distances
+% distance between midpoint to center in YZ plane
+dz = pdist([cm(1:2).'; pmm(1:2).'], 'euclidean');
+% distance between midpoint to center in XY plane
+dx = pdist([cmx(1:2).'; pmx(1:2).'], 'euclidean');
+P1 = [0 -dx1 0 1].';
+P2 = [0 dx1 0 1].';
+P3 = [dx -d dz 1].';
+P4 = [dx d dz 1].';
+
+syms h11 h12 h13 h14 h21 h22 h23 h24 h31 h32 h33 h34;
+
+H = [h11 h12 h13 h14;...
+    h21 h22 h23 h24;...
+    h31 h32 h33 h34;
+    0 0 0 1]
+P = [K zeros(3,1)];
+eq1 = P*H*points(:,1) == imagePoints(:,1);
+eq2 = P*H*points(:,4) == imagePoints(:,4);
+eq3 = P*H*points(:,5) == imagePoints(:,5);
+eq4 = P*H*points(:,6) == imagePoints(:,6);
+%P*H*P1 == p1;
+
+sol = solve([eq1 eq2 eq3 eq4], [h11 h12 h13 h14 h21 h22 h23 h24 h31 h32 h33 h34]);
+
+Hcrtocm = [  double(sol.h11) double(sol.h12) double(sol.h13) double(sol.h14);...
+        double(sol.h21) double(sol.h22) double(sol.h23) double(sol.h24);...
+        double(sol.h31) double(sol.h32) double(sol.h33) double(sol.h34);...
+        0               0               0               1]
+    
+Hcmtocr = [Hcrtocm(1:3,1:3).'       -(Hcrtocm(1:3,1:3).')*Hcrtocm(1:3,4);...
+            zeros(1, 3)                     1]
+        
+focalPointCM = Hcmtocr*[0; 0; 0; 1]
+
+figure(position3d)
+% plot on 3D graph
 hold on
-plot(Om(1), Om(2), 'or', 'markersize', 12, 'color', 'r')
+scatter3(focalPointCM(1), focalPointCM(2), focalPointCM(3), 'r', 'filled')
 
-a = pdist([vpZ(1:2).'; vpX(1:2).'], 'euclidean');
-b = pdist([Om(1:2).'; vpZ(1:2).'], 'euclidean');
-c = pdist([Om(1:2).'; vpX(1:2).'], 'euclidean');
+%% test 
+clc
+[righe, colonne] = size(points);
+for i = 1:colonne
+    test1 = imagePoints(:,i);
+    test2 = P * Hcrtocm * points(:,i);
+    string = sprintf('\npoint number %d', i);
+    disp(string)
+    errore = abs(test1-test2)./test1
+end
 
-focalDistance = sqrt((a*a - c*c - b*b)/2);
-%%
-[Mit1, omegaInf, N] = svd(w);
-T1 = [ sqrt(omegaInf(1,1))     0                 0 ;...
-        0                sqrt(omegaInf(2,2))     0 ;...
-        0                      0            sqrt(omegaInf(3,3))];
-
-Mit = Mit1 * T1;
-Mi = Mit.';
-M = inv(Mi);
-
-Rcw1= inv(K)*M;
-Rcw = [ Rcw1(:,1)/norm(Rcw1(:,1)) ...
-        Rcw1(:,2)/norm(Rcw1(:,2)) ...
-        Rcw1(:,3)/norm(Rcw1(:,3))];
-
-
-Rwc = inv(Rcw);
-p1w = [0; dx1; 0];
-p2w = [0; -dx2; 0];
-p1c = Rwc * p1w
-p2c = Rwc * p2w
-pmc = (p1c+p2c)
-
-
-
-%%
-figure(position2d)
+%% plot a camera
+figure(position3d)
 hold on
-p = [v1(1,1); v1(2,1); 1];
-plot(p(1), p(2), 'or','MarkerSize',12, 'color', 'g');
-
-x1 = normalize(cross(vpX, center));
-x2 = normalize(cross(vpX, p));
-y1 = normalize(cross(vpY, center));
-y2 = normalize(cross(vpY, p));
-z1 = normalize(cross(vpZ, center));
-z2 = normalize(cross(vpZ, p));
-
-px1y2 = normalize(cross(x1, y2));
-px2y1 = normalize(cross(x2, y1));
-py1z2 = normalize(cross(y1, z2));
-py2z1 = normalize(cross(y2, z1));
-pz1x2 = normalize(cross(z1, x2));
-pz2x1 = normalize(cross(z2, x1));
-
-plot(px1y2(1), px1y2(2), 'or','MarkerSize',12, 'color', 'b');
-plot(px2y1(1), px2y1(2), 'or','MarkerSize',12, 'color', 'b');
-
-plot(py1z2(1), py1z2(2), 'or','MarkerSize',12, 'color', 'r');
-plot(py2z1(1), py2z1(2), 'or','MarkerSize',12, 'color', 'r');
-
-plot(pz1x2(1), pz1x2(2), 'or','MarkerSize',12, 'color', 'g');
-plot(pz2x1(1), pz2x1(2), 'or','MarkerSize',12, 'color', 'g');
-
-line2 = [center.'; py1z2.' ; p.'; py2z1.'; center.'];
-line(line2(:,1), line2(:,2), 'LineWidth', 2, 'color', 'r');
-line3 = [center.'; pz1x2.' ; p.'; pz2x1.'; center.'];
-line(line3(:,1), line3(:,2), 'LineWidth', 2, 'color', 'g');
-line1 = [center.'; px1y2.' ; p.'; px2y1.'; center.'];
-line(line1(:,1), line1(:,2), 'LineWidth', 2, 'color', 'b');
-
-pt = HrXY * p;
-pt = pt/pt(3);
-ct = HrXY * center;
-ct = ct/ct(3);
-p12t = HrXY * px1y2;
-p12t = p12t/p12t(3);
-p21t = HrXY * px2y1;
-p21t = p21t/p21t(3);
-
-dpc = pdist([pt(1:2).';ct(1:2).'], 'euclidean')
-d12c = pdist([p12t(1:2).';ct(1:2).'], 'euclidean')
-d21c = pdist([p21t(1:2).';ct(1:2).'], 'euclidean')
-sqrt(d12c*d12c + d21c*d21c)
+orientation1 = [Hcmtocr(1:3,1)/norm(Hcmtocr(1:3, 1))...
+                Hcmtocr(1:3,2)/norm(Hcmtocr(1:3, 2))...
+                Hcmtocr(1:3,3)];
+orientation = [1 0 0; 0 0 -1; 0 1 0];
+           
+cam = plotCamera('Location',Hcmtocr(1:3, 4).','Orientation',orientation,'Size',0.05);
