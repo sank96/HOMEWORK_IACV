@@ -158,22 +158,10 @@ ratio1 = diameter1/distancewtow
 %% point 2.2
 % find the image of absolute conic
 
-% %find other 2 vanishing points from sensors
-% [vps1, vps2, profile, ps1, ps2] = findVPfromC(img);
-%
-% figure(linesFigure)
-% % imshow(profile)
-% hold on
-% plot(ps1(1,:), ps1(2,:), 'or','MarkerSize',12, 'color', 'g');
-% plot(ps2(1,:), ps2(2,:), 'or','MarkerSize',12, 'color', 'r');
-% plot(vps1(1), vps1(2), 'or','MarkerSize',12, 'color', 'c');
-% plot(vps2(1), vps2(2), 'or','MarkerSize',12, 'color', 'c');
-% hold off
-
 % find vanishing point from the car license plate
 [vps1, vps2, xT, yT] = findVPfromL(imagesBW);
+
 figure(linesFigure)
-% imshow(imagesBW);
 hold on
 plot(xT, yT, 'or','MarkerSize',12, 'color', 'g');
 plot(vps1(1), vps1(2), 'or','MarkerSize',12, 'color', 'b');
@@ -183,12 +171,15 @@ hold off
 % camera matrix
 syms fxI fyI u0I v0I;
 
-KI = [fxI 0 u0I;...
-    0 fyI v0I;...
-    0 0 1];
+KI = [  fxI     0       u0I;...
+        0       fyI     v0I;...
+        0       0       1];
+% dual image absolute conic
 wstar = KI*KI.';
+% image of absolute conic
 w = inv(wstar);
 
+% constraints
 eq1 = (vpoint1.')*w*vpoint2;
 eq2 = (vpoint1.')*w*vps1;
 eq3 = (vpoint2.')*w*vps1;
@@ -206,6 +197,7 @@ fy = abs(fy(1));
 u0 = abs(u0(1));
 v0 = abs(v0(1));
 
+% calibration matrix
 K = [   fx  0   u0 ;...
         0   fy  v0 ;...
         0   0   1]
@@ -216,57 +208,51 @@ iac = iac/iac(3,3);
 %% point 2.3
 
 % dimensione targa
-% 520 mm � 110 mm;
+% 520 mm x 110 mm;
 
+% vanishing points
 vpX = vpoint1;
 vpY = vps1;
 vpZ = vpoint2;
+% image of absolute conic
 w = iac;
 
 close all
 position2d = figure('name', '2d position');
 imshow(imagesBW);
 hold on
-% plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
 
+% back transformation for each plane
 HrYZ = backTransformation(vpY, vpZ, w);
 HrXY = backTransformation(vpX, vpY, w);
 HrXZ = backTransformation(vpX, vpZ, w);
 
-% p = [ HrYZ * [xT(3) ; yT(3) ; 1] ...
-%     HrYZ * [xT(4) ; yT(4) ; 1]];
-% p = [ p(:,1)/p(3,1) p(:,2)/p(3,2)];
-% cp = (p(:,1)+p(:,2))/2;
-% center = inv(HrYZ) * cp;
-
+% center of the system, the midpoint of lower side
 center = crossRatioMid([xT(3) ; yT(3) ; 1], [xT(4) ; yT(4) ; 1], vpY);
-% punto medio della targa in basso
 
+% draw the axes
 myline=[vpY.' ; center.' ; vpZ.' ; center.' ; vpX.'];
 line(myline(:,1),myline(:,2),'LineWidth',1, 'color', 'c');
-plot(center(1), center(2),'or','MarkerSize',12, 'color', 'r');
-plot([vpX(1) vpY(1) vpZ(1)], [vpX(2) vpY(2) vpZ(2)], 'or','MarkerSize',12, 'color', 'r');
+% plot the center
+plot(center(1), center(2),'or','MarkerSize',12, 'color', 'r'); 
+% plot the vanishing point
+plot([vpX(1) vpY(1) vpZ(1)], [vpX(2) vpY(2) vpZ(2)], 'or','MarkerSize',12, 'color', 'r');   
 
-
+% points of car lincense plate
 p2 = [xT(3); yT(3); 1];
 p1 = [xT(4); yT(4); 1];
-p3 = [xT(1); yT(1); 1];
-p4 = [xT(2); yT(2); 1];
 plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
-pm = crossRatioMid([xT(1) ; yT(1) ; 1], [xT(2) ; yT(2) ; 1], vpY);
-% plot(pm(1), pm(2), 'or', 'markersize', 12, 'color', 'b');
+% pm = crossRatioMid([xT(1) ; yT(1) ; 1], [xT(2) ; yT(2) ; 1], vpY);
 
-pmm = normalize((HrYZ*pm));
-p4m = normalize((HrYZ*p4));
-p3m = normalize((HrYZ*p3));
+% pmm = normalize((HrYZ*pm));
+% symmetric point
 p2m = normalize((HrYZ*p2));
 p1m = normalize((HrYZ*p1));
+% center
 cm = normalize((HrYZ*center));
+% distance from center to p1 and p2 in YZ plane
 dx1 = pdist([p1m(1:2).'; cm(1:2).'], 'euclidean');
 dx2 = pdist([p2m(1:2).'; cm(1:2).'], 'euclidean');
-dz = pdist([cm(1:2).'; pmm(1:2).'], 'euclidean');
-dx3 = pdist([p3m(1:2).'; pmm(1:2).'], 'euclidean');
-dx4 = pdist([p4m(1:2).'; pmm(1:2).'], 'euclidean');
 
 
 pause
@@ -275,9 +261,6 @@ scatter3(0, 0, 0, 'r', 'filled')
 hold on
 scatter3(0, dx1, 0, 'g', 'filled')
 scatter3(0, -dx2, 0, 'g', 'filled')
-% scatter3(0, 0, dz, 'b', 'filled')
-% scatter3(0, dx3, dz, 'g', 'filled')
-% scatter3(0, -dx4, dz, 'g', 'filled')
 pause
 
 str = 'yes';

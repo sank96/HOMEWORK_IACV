@@ -141,3 +141,84 @@ ratio =
 
     0.1813
 ```
+
+
+## Camera calibration
+In this point I used the previous feature to calibrate the camera, determining the matrix K. To do this, it's necessary the image of absolute conic
+$$ \Omega_{\infty}  =
+\left[
+\begin{split}
+1 \quad & &
+\\ & 1 \quad &
+\\ & & 1
+\end{split}
+\right]$$
+Since the camera is not natural, and it is zero-skew the matrix has 4 parameters, therefore 4 constraints.     
+The angle between two directions can be calculate as follows:
+$$
+\cos \theta = \frac{d_1^T d_2}{\sqrt{d_1^Td_1}\sqrt{d_2^Td_2}}
+\\
+d_1^T d_2 = v_1^T \ \omega \ v_2
+\\
+if \ \theta=90° \qquad v_1^T \ \omega \ v_2 = 0
+$$
+I have already two vanishing points, finding another vanishing point I get three constraints, I need another one.     
+The image of absolute conic is the set of circular points, since I have already calculate a pair of circular points I used them as other constraint.
+$$
+\begin{cases}
+vp_1^T \ \omega \ vp_1  & 1
+\\
+vp_2^T \ \omega \ vp_2 & 2
+\\
+vp_3^T \ \omega \ vp_3 & 3
+\\
+I^T \ \omega \ I & 4
+\end{cases}
+$$
+Fur equations in four parameter. In this way I obtained ω.
+$$\omega^* = \omega^{-1} = KK^T$$
+With Cholesky decomposition, return, from *image of absolute conic*, an upper triangular matrix K, the camera calibration.
+```
+>> K
+
+K =
+
+   1.0e+03 *
+
+    2.9205         0    2.3052
+         0    2.9749    2.1227
+         0         0    0.0010
+```
+
+## 3D position reconstruction
+Now let's fix a reference frame on the midpoint of the lower side of the car license plate.      
+![referenceFrame](images/2019/01/referenceframe.png)
+Using symmetric pairs of relative points, I can map and find their 3D position. In order to do this I computed the back transformations of plane XY, XZ and YZ. They are necessary to calculate the coordinates of symmetric points.
+
+Selected a pair of symmetric points, I can use them to find the midpoint between them using the vanishing point Y (the point on the left of the image). The theory says that the cross ratio remains invariant under a linear projective mapping.
+$$CR = \frac{x_1-y}{x_1 -z} / \frac{x_2-y}{x_2-z}
+\\
+CR(a,b,c,d) = CR(a',b', c', d')$$
+If one of this point goes to infinity the cross ration is equal to -1.
+$$
+\frac{x_1-y}{x_1 -z} / \frac{x_2-y}{x_2-z} = -1
+\\
+\begin{split}
+y,z \quad & where\ ever
+\\
+x_1 \quad & midpoint
+\\
+x_2 \quad & \infty
+\end{split}
+$$
+
+y and z are the symmetric points, x2 is the vanishing point, now I found x1.
+$$
+x_1 = \frac{yx_2 + zx_2 + 2yz}{2x_2-z-y}
+$$
+Found the midpoint I set it as center of reference axes. The coordinates of p1 and p2 (y and z in the previous formulas) are calculated as the distance from the center to p1 and p2 in YZ plane.
+
+After taht selection manually pair of symmetric points they are 3d positioned. Similar to what done previously.
+To find y coordinate compute the distances between points P1 and P2 to midpoint in YZ plane. Moreover the z coordinate is the distance between midpoint and the center in YZ plane. Finally x coordinate is the distance between center and midpoint in XY plane.
+
+## Camera localization
