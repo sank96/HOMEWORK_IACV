@@ -3,9 +3,9 @@ A.Y. 2018/2019
 
 
 In this homework we have to apply the techniques learned during the lectures in order to complete some tasks.    
-Given two images of two different cars we have to find some important features such edges, ellipses or symmetric point. With this information, later, we calibrate the camera (zero-screw, but not natural), localize it and find the position of some points.     
+Given two images of two different cars we have to choose one and find some important features, such edges, ellipses or symmetric point. With this information, later, we calibrate the camera (zero-screw, but not natural), localize it and find the position of some points.     
 
-Let's analyze tasks point-wise.
+Let's analyze the task point by point.
 
 ## Extraction of image features
 First of all images are uploaded, the photo used in the homework is '_Image1_'.
@@ -19,18 +19,17 @@ rgb2gray(image1);
 0.299*images(:,:,1) + 0.587*images(:,:,2) + 0.114*images(:,:,3);
 ```
 
-Now we can start with the first point in which we have to select the most important features useful for the following points.
+Now we can start with the first point in which the task is to select the most important features useful for the following points.
 
-The approach, that I have used to extract information from image, is to select a restricted area in image.     
-In order to do this I wrote the function `selectRegion()` that, given an image, allows to select a section and return the selected region and the coordinates of the rectangle, necessaries to translate the features selected in the region and then visualize in the original image.
+The approach, that I have used to extract information from image, is to select a restricted area of the image, in order to compute less pixels each time.        
+The function `selectRegion()` serves this purpose, given an image, allows to select a region and return it and the coordinates of the rectangle, necessaries to translate the features in the region and then visualize and analyze them in the original image.
 
-After that the selection is derived for having a better visualization of the edges. During the fourth laboratory professor Boracchi showed us the code to make edge detection. I used this code adding the possibility to chose different threshold such that binary or hard threshold.     
-The edge detection is implemented in the function `findEdges()` in which it is possible to choose *binary, hard* or *Canny* thresholds.    
-In my homework I used the Canny method.
+After that the selection is derived for having a better visualization of the edges. During the fourth laboratory professor Boracchi showed us the code to make edge detection. I use this code adding the possibility to chose different threshold such that binary or hard threshold.     
+The edge detection is implemented in the function `findEdges()` in which it is possible to choose *binary, hard* or *Canny* thresholds.  After a few attempts, the best way to derive the image is with *Canny* method. For this reason I use it in my homework.
 
-All these functions are used in `findEllipses()` with which it is possible to detect the conics that represent the wheels. After a dilation of the image, it's applied a script that find all the ellipses in the image. At the end, they are visualized and user has to choose the correct one, that is highlighted in blue. From the selected ellipse, 5 points are showed that are necessary to calculate the C matrix of each wheels.
+All these functions are used in `findEllipses()` with which it is possible to detect the conics that represent the wheels. After a dilation of the image, it's applied a script that find all the ellipses. At the end, they are visualized and user has to choose the correct one, that is highlighted in blue. From the selected ellipse, 5 points are showed, they are necessary to calculate the C matrix of each wheels.
 
-To calculate the conic matrix from 5 points belonging the conic, we used the right null space that is the vector that right multiplied return the null vector. In my code the matrix A represents the system of equations of points belonging the conic.
+To calculate the conic matrix from 5 points, I use the right null space, that is the vector that right multiplied return the null vector. In my code the matrix A represents the system of equations of points belonging the conic.
 $$ x^T \  C \  x = 0 $$
 $$A \  N = \underline{0}$$
 *A* is a 5x6 matrix, and *N* is the RNS of A ($N = RNS(A)$), more precisely it is a vector with the coefficients that satisfies this equation:
