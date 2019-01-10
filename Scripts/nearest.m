@@ -1,12 +1,13 @@
 function [distance,pointX, pointY] = nearest(x,y,setX,setY)
-%NEAREST Summary of this function goes here
-%   Detailed explanation goes here
+%NEAREST find the nearest point to a set of point
+%   The nereast point in the sense of minimum distance
+
 A = [x, y];
 B = [setX.' setY.'];
-distances = sqrt(sum(bsxfun(@minus, B, A).^2,2));
-closest = B(find(distances==min(distances)),:);
-distance = min(distances);
-pointX = closest(1);
+distances = sqrt(sum(bsxfun(@minus, B, A).^2,2));   % calculate the distance
+closest = B(find(distances==min(distances)),:);     % find the point with minimum distance
+distance = min(distances);      % inimum distance
+pointX = closest(1);    
 pointY = closest(2);
 end
 

@@ -1,6 +1,7 @@
 function [mainPoints] = findCorner(image, name)
-%FINDCORNER Summary of this function goes here
-%   Detailed explanation goes here
+%FINDCORNER from an image return the corner points
+%   The main points are pre selected in order to reduce the computational
+%   time
 
 mainPoints = [...
     % targa
@@ -23,22 +24,16 @@ mainPoints = [...
     1547    462.5;  ...
     1280    439.3];
 
-% [region, xR, yR] = selectRegion(image, name);
 region = findEdges(image, 'canny');
 % C = detectMinEigenFeatures(region);
 C = detectHarrisFeatures(region);
 
+% plot all points
 figure('name', name),imshow(image);
 hold on
 h = plot(C.Location(:,1), C.Location(:,2), 'g+', 'LineWidth', 4);
 
-pause
+disp('press key to continue'),pause
 close(name)
-% if exist('h', 'var')
-%   delete(h)
-% end
-% figure,imshow(image);
-% hold on
-% plot(mainPoints(:,1), mainPoints(:,2), 'g+', 'LineWidth', 4, 'color', 'r')
 
 end

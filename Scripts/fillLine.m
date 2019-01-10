@@ -1,6 +1,5 @@
 function [xx,yy] = fillLine(startp,endp,pts)
-%FILLLINE Summary of this function goes here
-%   Detailed explanation goes here
+%FILLLINE Return set of points that represent a line
 
 % take starting, ending point & number of points in between
 % make line to connect between 2 coordinates

@@ -1,7 +1,6 @@
 function [lines] = bitanget(C1,C2)
-%BITANGET Summary of this function goes here
-%   Detailed explanation goes here
-% bitangenti
+%BITANGET Find the tangents to both conics input
+
 syms a b;
 
 % dual conic

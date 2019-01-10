@@ -1,6 +1,7 @@
 function [pm] = crossRatioMid(p1,p2,inf)
-%CROSSRATIO Summary of this function goes here
-%   Detailed explanation goes here
+%CROSSRATIO Return the midpoint with cross ratio
+%   Given two symmetric point p1 and p2, and the vanishing point inf it
+%   returns the midpoint
 
 % direction
 d = -abs(p1-inf)/norm((p1-inf));

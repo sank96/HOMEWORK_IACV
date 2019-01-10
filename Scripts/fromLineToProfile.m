@@ -1,5 +1,5 @@
 function profile = fromLineToProfile(image,line)
-%FINDLINE Line is a VECTOR
+%FINDLINE Return the profile of line on the image
 %   Detailed explanation goes here
 
 [R C] = size(image);

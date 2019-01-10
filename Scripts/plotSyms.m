@@ -21,12 +21,12 @@ diffx = cmx-pmx;
 
 if diffz<=0
     z = 1;
-else 
+else
     z = -1;
 end
 if diffx(1)>=0
     x = 1;
-else 
+else
     x = -1;
 end
 
@@ -46,7 +46,7 @@ plot(p1(1), p1(2),'or','MarkerSize',12, 'color', 'g');
 plot(p2r(1), p2r(2),'or','MarkerSize',12, 'color', 'g');
 plot(pm(1), pm(2),'or','MarkerSize',12, 'color', 'b');
 
-pause % waiting key input
+disp('press key to continue'),pause % waiting key input
 figure(position3d)
 % plot on 3D graph
 hold on
@@ -57,8 +57,7 @@ scatter3(x*dx, 0, z*dz, 'b', 'filled')
 P1 = [x*dx; d; z*dz; 1];
 P2 = [x*dx; -d; z*dz; 1];
 M = [x*dx; 0; z*dz; 1];
-pause
+disp('press key to continue'),pause
 
 
 end
-

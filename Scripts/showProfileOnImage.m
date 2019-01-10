@@ -1,7 +1,7 @@
 function imageProfiled = showProfileOnImage(image,imgP,x0,y0)
 %SHOWPROFILE Allow to show a profile expressed by a binary image on another
 %image
-%   SHOWPROFILE(image, imgP, x0, y0) return an image that is a merge of ad
+%   SHOWPROFILE(image, imgP, x0, y0) return an image that is a merge of an
 %   image (\image) and a boundary (\imgP). In order to mix images of
 %   different size x0 and y0 indicate the origin (croner top left) of the 
 %   image \imgP in the image \image

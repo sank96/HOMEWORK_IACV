@@ -4,7 +4,8 @@ function [imageRegion, xR, yR] = selectRegion(image, name)
 %   SELECTREGION(image, name) show image in a new temporary figure. 
 %   User is allowed to select a rectangular section of \image. 
 %   The function return the section of the image \imageRegion and 
-%   the coordinates of the origin of the region selected (its Xmin -> xR and Ymin -> yR)
+%   the coordinates of the origin of the region selected 
+%   (its Xmin -> xR and Ymin -> yR)
 
 % display a temporary figure in order to select the area
 figure('Name', 'chose region');

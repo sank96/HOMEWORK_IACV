@@ -8,20 +8,8 @@ function M = findEdges(imagesBW, threshold, value)
 %   - 'custom'
 %   - 'canny' 
 
-%% Building filters as smoothing + differentiating filters
-
-%disp('differentiating filters')
 diffx=[1 -1];
 diffy = diffx';
-
-%smoothing filters Previtt
-sx=ones(2,3);
-sy=sx';
-
-% build Previtt derivative filters
-%disp('derivative filters Previtt')
-dxP=conv2(sy , diffx);
-dyP=conv2(sx , diffy);
 
 %smoothing filters Sobel
 sx=[1 2 1 ; 1 2 1];
@@ -32,8 +20,7 @@ sy=sx';
 dxS=conv2(sy,diffx);
 dyS=conv2(sx,diffy);
 
-
-%% Differentiating Filters
+% Differentiating Filters
 
 % compute gradient components (horizontal and vertical derivatives)
 Gx=conv2(imagesBW , dxS , 'same');

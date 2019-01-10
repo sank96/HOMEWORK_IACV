@@ -1,6 +1,6 @@
 function [vp1, vp2, xT, yT] = findVPfromP(image, points)
-%TEST Find vanishing points from car license plate
-%   Detailed explanation goes here
+%TEST Find vanishing points from 4 points
+%
 
 % display the input image in order to choose the corner points
 figure('name', 'select the corner of car license plate');
@@ -19,7 +19,7 @@ plot(points(1,:), points(2,:), 'g+', 'LineWidth', 4, 'color', 'r')
 
 % control there are selected 4 points
 while length(x) ~= 4
-    title('select the 4 corner')
+    title('select the 4 corners')
     [x, y] = getpts;
 end
 
@@ -33,7 +33,7 @@ end
 plot(ps(1,:), ps(2,:), 'g+', 'LineWidth', 4, 'color', 'b')
 
 % delay and then close the figure
-pause
+disp('press key to continue'),pause
 close('select the corner of car license plate')
 
 xT = ps(1,:);

@@ -1,6 +1,8 @@
 function im = fromConicToProfile(image,C)
-%FROMCONICTOPROFILE Summary of this function goes here
-%   Detailed explanation goes here
+%FROMCONICTOPROFILE Return the profile of the conic
+%   Return an image of the same size of the input image, completely black 
+%   except for the conic's points that are white
+
 [r, c] = size(image);
 im = zeros(r, c);
 for i=1:r

@@ -1,5 +1,5 @@
 function profile = fromLinesToProfile(image, lines)
-%FINDLINES Summary of this function goes here
+%FINDLINES Return the profile of different lines
 %   Detailed explanation goes here
 
 L = size(lines);
