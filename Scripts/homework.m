@@ -36,9 +36,10 @@ imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
 % showTwoImages(imagesBW, imageWithWheels, 'conic as wheels')
 
 mainPoints = findCorner(imagesBW, 'find corner');
+mainPoints = [mainPoints.' ; ones(1,length(mainPoints(:,1)))];
 figure('name', 'main features'), imshow(imageWithWheels)
 hold on
-plot(mainPoints(:,1), mainPoints(:,2), 'g+', 'LineWidth', 2, 'color', 'r')
+plot(mainPoints(1,:), mainPoints(2,:), 'g+', 'LineWidth', 4, 'color', 'r')
 
 
 %% point 2.1
@@ -80,7 +81,7 @@ pause
 figure(linesFigure)
 hold on
 line1 = cross(v1(:,1), v2(:,1));
-line1 = line1/line1(3);
+line1 = line1/line1(3); % normalization of points and lines to reppresent them in homogeneous coordinate 
 line2 = cross(v1(:,2), v2(:,2));
 line2 = line2/line2(3);
 vpoint1 = cross(line1, line2);
@@ -104,7 +105,7 @@ lineInf = lineInf/lineInf(3);
 
 syms x y
 xVector = [x; y; 1];
-
+% system of equations
 A1 = lineInf.' * xVector;
 A2 = xVector.' * C1 * xVector;
 
@@ -147,28 +148,23 @@ v1bt = [v1backTra(1:2,1)/v1backTra(3,1) v1backTra(1:2,2)/v1backTra(3,2)];
 v2backTra = bHr*v2;
 v2bt = [v2backTra(1:2,1)/v2backTra(3,1) v2backTra(1:2,2)/v2backTra(3,2)];
 
-% diameter = sqrt(...
-%     (v1bt(1,1)-v1bt(1,2))*(v1bt(1,1)-v1bt(1,2)) +...
-%     (v1bt(2,1)-v1bt(2,2))*(v1bt(2,1)-v1bt(2,2)))
-% diameter1 = sqrt(...
-%     (v2bt(1,1)-v2bt(1,2))*(v2bt(1,1)-v2bt(1,2)) +...
-%     (v2bt(2,1)-v2bt(2,2))*(v2bt(2,1)-v2bt(2,2)))
-
 diameter =  pdist([v1bt(1,1) v1bt(2,1);v1bt(1,2) v1bt(2,2)],'euclidean');
 distancewtow = pdist([v1bt(1,1) v1bt(1,2);v2bt(1,1) v2bt(1,2)],'euclidean');
 diameter1 = pdist([v2bt(1,1) v2bt(2,1);v2bt(1,2) v2bt(2,2)],'euclidean');
 
 ratio = diameter/distancewtow
 ratio1 = diameter1/distancewtow
+% compute the ratio between both wheels to have a proof
 
 %% point 2.2
 % find the image of absolute conic
 
 % find vanishing point from the car license plate
-[vps1, vps2, xT, yT] = findVPfromL(imagesBW);
-
+% [vps1, vps2, xT, yT] = findVPfromL(imagesBW);
+[vps1, vps2, xT, yT] = findVPfromP(imagesBW, mainPoints);
 figure(linesFigure)
 hold on
+
 plot(xT, yT, 'or','MarkerSize',12, 'color', 'g');
 plot(vps1(1), vps1(2), 'or','MarkerSize',12, 'color', 'b');
 plot(vps2(1), vps2(2), 'or','MarkerSize',12, 'color', 'y');
@@ -233,7 +229,8 @@ HrXY = backTransformation(vpX, vpY, w);
 HrXZ = backTransformation(vpX, vpZ, w);
 
 % center of the system, the midpoint of lower side
-center = crossRatioMid([xT(3) ; yT(3) ; 1], [xT(4) ; yT(4) ; 1], vpY);
+% center = crossRatioMid([xT(3) ; yT(3) ; 1], [xT(4) ; yT(4) ; 1], vpY);
+center = crossRatioMid(mainPoints(:,3), mainPoints(:,4), vpY);
 
 % draw the axes
 myline=[vpY.' ; center.' ; vpZ.' ; center.' ; vpX.'];
@@ -243,92 +240,67 @@ plot(center(1), center(2),'or','MarkerSize',12, 'color', 'r');
 % plot the vanishing point
 plot([vpX(1) vpY(1) vpZ(1)], [vpX(2) vpY(2) vpZ(2)], 'or','MarkerSize',12, 'color', 'r');   
 
-% points of car lincense plate
-p2 = [xT(3); yT(3); 1];
-p1 = [xT(4); yT(4); 1];
-plot(xT(3:4), yT(3:4),'or','MarkerSize',12, 'color', 'g');
-
-% symmetric point
-p2m = normalize((HrYZ*p2));
-p1m = normalize((HrYZ*p1));
-
-% center
-cm = normalize((HrYZ*center));
-% distance from center to p1 and p2 in YZ plane
-dx1 = pdist([p1m(1:2).'; cm(1:2).'], 'euclidean');
-dx2 = pdist([p2m(1:2).'; cm(1:2).'], 'euclidean');
-
-
 pause
+
+% 3D plot
 position3d = figure('name', '3d position');
 scatter3(0, 0, 0, 'r', 'filled')
-hold on
 xlabel('X axis'); ylabel('Y axis'); zlabel('Z axis'); 
-scatter3(0, dx1, 0, 'g', 'filled')
-scatter3(0, -dx2, 0, 'g', 'filled')
-pause
+hold on
 
-imagePoints = [];
+pause 
+
+imagePoints = mainPoints;
 points= [];
 midpoints = [];
 imageMid = [];
-[pr, pc] = size(imagePoints);
-
-str = 'yes';
-while strcmp(str,'yes')
-    [PA1, PA2, pa1, pa2, M, m] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY);
-    [pr, pc] = size(imagePoints);
-    imagePoints(:, pc+1:pc+2) = [pa1 pa2];
-    points(:, pc+1:pc+2) = [PA1 PA2];
-    [mr, mc] = size(midpoints);
-    midpoints(:, mc+1) = M;
-    imageMid(:, mc+1) = m;
-
-%     imagePoints = [imagePoints PA1 PA2]
-    [pr, pc] = size(imagePoints);
-    pause
-    prompt = 'Do you want select more points? Y/N [Y]: ';
-    str = input(prompt,'s');
-    if isempty(str)
-        str = 'yes';
-    elseif str == 'n' || str == 'N'
-        if pc < 6
-            str = 'yes';
-            disp('find at least 3 pairs of points')
-        else
-            str = 'no';
-        end
-    else
-        str = 'yes';
-    end
+for i=1:2:length(mainPoints(1,:))
+    [P1, P2, M, m] = plotSyms(imagePoints(:,i), imagePoints(:,i+1), center, HrXY, HrYZ, position2d, position3d, vpY);
+    %findSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY);
+    points(:, i:i+1) = [P1 P2];
+    midpoints(:, ceil(i)) = M;
+    imageMid(:, ceil(i)) = m;
 end
 
+
+%% OLD version
+% % this was written when I didn't find the main points, so I took them manually
+% imagePoints = [];
+% points= [];
+% midpoints = [];
+% imageMid = [];
+% [pr, pc] = size(imagePoints);
+% 
+% str = 'yes';
+% while strcmp(str,'yes')
+%     [PA1, PA2, pa1, pa2, M, m] = findSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY);
+%     [pr, pc] = size(imagePoints);
+%     imagePoints(:, pc+1:pc+2) = [pa1 pa2];
+%     points(:, pc+1:pc+2) = [PA1 PA2];
+%     [mr, mc] = size(midpoints);
+%     midpoints(:, mc+1) = M;
+%     imageMid(:, mc+1) = m;
+% 
+% %     imagePoints = [imagePoints PA1 PA2]
+%     [pr, pc] = size(imagePoints);
+%     pause
+%     prompt = 'Do you want select more points? Y/N [Y]: ';
+%     str = input(prompt,'s');
+%     if isempty(str)
+%         str = 'yes';
+%     elseif str == 'n' || str == 'N'
+%         if pc < 6
+%             str = 'yes';
+%             disp('find at least 3 pairs of points')
+%         else
+%             str = 'no';
+%         end
+%     else
+%         str = 'yes';
+%     end
+% end
+
 %% point 2.4
-p4 = [xT(2); yT(2); 1];
-p3 = [xT(1); yT(1); 1];
-pm = crossRatioMid([xT(1) ; yT(1) ; 1], [xT(2) ; yT(2) ; 1], vpY);
-
-% projection on YZ plane
-p3m = normalize(HrYZ*p3);       % P1
-p4m = normalize(HrYZ*p4);       % P2
-pmm = normalize(HrYZ*pm);       % midpoint
-% projection on XY plane
-pmx = normalize(HrXY*pm);       % midpoint
-cmx = normalize(HrXY*center);   % center
-
-% distance between each point to midpoint in YZ plane
-d3 = pdist([p3m(1:2).'; pmm(1:2).'], 'euclidean');
-d4 = pdist([p4m(1:2).'; pmm(1:2).'], 'euclidean');
-d = (d3+d4)/2;  % media of distances
-% distance between midpoint to center in YZ plane
-dz = pdist([cm(1:2).'; pmm(1:2).'], 'euclidean');
-% distance between midpoint to center in XY plane
-dx = pdist([cmx(1:2).'; pmx(1:2).'], 'euclidean');
-P1 = [0 -dx1 0 1].';
-P2 = [0 dx1 0 1].';
-P3 = [dx -d dz 1].';
-P4 = [dx d dz 1].';
-
 syms h11 h12 h13 h14 h21 h22 h23 h24 h31 h32 h33 h34;
 
 H = [h11 h12 h13 h14;...
@@ -336,11 +308,10 @@ H = [h11 h12 h13 h14;...
     h31 h32 h33 h34;
     0 0 0 1];
 P = [K zeros(3,1)];
-eq1 = P*H*points(:,1) == imagePoints(:,1);
-eq2 = P*H*points(:,3) == imagePoints(:,3);
-eq3 = P*H*points(:,5) == imagePoints(:,5);
-eq4 = P*H*points(:,7) == imagePoints(:,7);
-%P*H*P1 == p1;
+eq1 = P*H*points(:,5) == imagePoints(:,5);
+eq2 = P*H*points(:,7) == imagePoints(:,7);
+eq3 = P*H*points(:,9) == imagePoints(:,9);
+eq4 = P*H*points(:,13) == imagePoints(:,13);
 
 sol = solve([eq1 eq2 eq3 eq4], [h11 h12 h13 h14 h21 h22 h23 h24 h31 h32 h33 h34]);
 
@@ -359,19 +330,20 @@ ttt = 0.01;
 figure(position3d)
 % plot on 3D graph
 hold on
+focalPointCM = -focalPointCM;
 h = scatter3(focalPointCM(1), focalPointCM(2), focalPointCM(3), 'r', 'filled');
 t = text(focalPointCM(1)+ttt, focalPointCM(2)+ttt, focalPointCM(3)+ttt, 'h');
 
 %% test 
-clc
-[righe, colonne] = size(points);
-for i = 1:colonne
-    test1 = imagePoints(:,i);
-    test2 = P * Hcrtocm * points(:,i);
-    string = sprintf('\npoint number %d', i);
-    disp(string)
-    errore = abs(test1-test2)./test1
-end
+% clc
+% [righe, colonne] = size(points);
+% for i = 1:colonne
+%     test1 = imagePoints(:,i);
+%     test2 = P * Hcrtocm * points(:,i);
+%     string = sprintf('\npoint number %d', i);
+%     disp(string)
+%     errore = abs(test1-test2)./test1
+% end
 
 %% without syms
 NN = imagePoints/points;
@@ -386,6 +358,7 @@ focalPointCM1 = HH1*[0; 0; 0; 1]
 figure(position3d)
 % plot on 3D graph
 hold on
+focalPointCM1 = - focalPointCM1;
 h1 = scatter3(focalPointCM1(1), focalPointCM1(2), focalPointCM1(3), 'c', 'filled');
 t1 = text(focalPointCM1(1)+ttt, focalPointCM1(2)+ttt, focalPointCM1(3)+ttt, 'h1');
 %% calculate H with mid point
@@ -405,25 +378,31 @@ focalPointCM2 = HH2*[0; 0; 0; 1]
 figure(position3d)
 % plot on 3D graph
 hold on
+focalPointCM2 = -focalPointCM2;
 h2 = scatter3(focalPointCM2(1), focalPointCM2(2), focalPointCM2(3), 'c', 'filled');
 t2 = text(focalPointCM2(1)+ttt, focalPointCM2(2)+ttt, focalPointCM2(3)+ttt, 'h2');
 
 %% plot a camera
-% figure(position3d)
-% hold on
+figure(position3d)
+hold on
 % orientation = [Hcrtocm(1:3,1)/norm(Hcrtocm(1:3, 1))...
 %                 Hcrtocm(1:3,2)/norm(Hcrtocm(1:3, 2))...
 %                 Hcrtocm(1:3,3)/norm(Hcrtocm(1:3, 3))];
-% orientation = [1 0 0; 0 0 -1; 0 1 0];
-%            
-% cam = plotCamera('Location',Hcmtocr(1:3, 4).','Orientation',orientation,'Size',0.05);
+theta = 45;
+R2 = [         0.7071   -0.7071         0;...
+               0.7071    0.7071         0;...
+               0         0              1.0000];
+
+R1 = [1 0 0; 0 0 -1; 0 1 0];
+orientation = R1*R2;
+cam = plotCamera('Location',focalPointCM(1:3),'Orientation',orientation,'Size',0.05);
 
 %% remove object plotted from figure
 % h = plot...
 %     ...
 getname = @(x) inputname(1);
 
-if exist('h1', 'var')
-  delete(h1)
-  delete(t1)
+if exist('cam', 'var')
+  delete(cam)
+  delete(t)
 end

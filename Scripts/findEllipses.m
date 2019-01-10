@@ -1,4 +1,4 @@
-function [C, profile] = findEllipses(image, name)
+function [C, profile, CX, CY] = findEllipses(image, name)
 %FINDELLIPSES Usefull to find ellipses in an image
 %   Detailed explanation goes here
 
@@ -74,7 +74,8 @@ xW = xW(1);
 yW = yW(1);
 xT = (xT + xW).';
 yT = (yT + yW).';
-
+CX = x+xW;
+CY = y+yW;
 % calculate C matrix from 5 points
 A1=[xT.^2 xT.*yT yT.^2 xT yT ones(size(xT))];
 N = null(A1);
