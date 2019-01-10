@@ -9,7 +9,7 @@ xS = xS(1);
 yS = yS(1);
 
 figure('Name', 'symmetric points');
-imshow(findEdges(selection, 'binary'));
+imshow(findEdges(selection, 'canny'));
 title('select a pair of symmetric points')
 hold on;
 [x, y]=getpts;

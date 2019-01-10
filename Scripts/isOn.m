@@ -3,7 +3,6 @@ function bool = isOn(point, element)
 %   Detailed explanation goes here
 
 threshold = 1e-03;
-
 sizeEl = size(element);
 sizeEl = sizeEl(2);
 bool = false;
@@ -12,7 +11,7 @@ if sizeEl == 1
         bool = true;
     end
 elseif sizeEl == 3
-    if point.' * element * point < threshold
+    if abs(point.' * element * point) < threshold
         bool = true;
     end
 end

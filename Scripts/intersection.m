@@ -11,7 +11,7 @@ for i = 1:length(lines)
         if ~isequal(l1, l2)
             v = cross(l1, l2);
             v = v/v(3);
-            if isOn(v, conic)    
+            if isOn(v, conic)  
 %                 disp('trovato')
                 points = [points v];
             end

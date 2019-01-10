@@ -26,49 +26,14 @@ imagesBW = rgb2gray(image1);
 % TROVIAMO LE RUOTE MANUALMENTE
 
 % find matric conic and profile
-[C1, profile1] = findConic(imagesBW, 'wheel1');
+[C1, profile1] = findEllipses(imagesBW, 'wheel1');
 % merge the conic and the image
 imageWithWheels = showProfileOpt(imagesBW, profile1);
 
-[C2, profile2] = findConic(imagesBW, 'wheel2');
+[C2, profile2] = findEllipses(imagesBW, 'wheel2');
 imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
 
 % showTwoImages(imagesBW, imageWithWheels, 'conic as wheels')
-% find automatically ellipses
-% s = findEllipses(imagesBW);
-
-%% erosion and delation
-close all
-im = imagesBW;
-% region = selectRegion(im, 'region');
-% figure, imshow(findEdges(region, 'canny'))
-% rec = findEdges(region, 'canny');
-
-figure, imshow(findEdges(im, 'canny'))
-imc = findEdges(im, 'canny');
-
-i = 3;
-i1 = 4;
-SE = strel('square', i);
-SE1 = strel('square', i1);
-dil = imdilate(imc,SE);
-dil1 = imdilate(imc,SE1);
-name = sprintf('square dilation %d & %d', i, i1);
-showTwoImages(dil, dil1, name)
-
-erd1 = imerode(dil1, SE);
-erd3 = imerode(dil1, SE1);
-figure,imshow([erd1 erd3])
-
-%%
-close all
-clc
-
-[C3, profile3] = findEllipses(imagesBW);
-[C4, profile4] = findConic(imagesBW, 'wheel1');
-figure('name', 'automatic'),imshow(showProfileOpt(imagesBW, profile3))
-figure('name', 'manual'),imshow(showProfileOpt(imagesBW, profile4))
-
 
 %% point 2.1
 % calculate bitanget
@@ -102,6 +67,8 @@ hold on
 plot(v1(1,:), v1(2,:), 'or','MarkerSize',12, 'color', 'g');
 plot(v2(1,:), v2(2,:), 'or','MarkerSize',12, 'color', 'g');
 hold off
+
+pause
 
 % BACK TRANSFORMATION
 figure(linesFigure)
@@ -250,7 +217,6 @@ vpZ = vpoint2;
 % image of absolute conic
 w = iac;
 
-close all
 position2d = figure('name', '2d position');
 imshow(imagesBW);
 hold on
@@ -355,7 +321,7 @@ syms h11 h12 h13 h14 h21 h22 h23 h24 h31 h32 h33 h34;
 H = [h11 h12 h13 h14;...
     h21 h22 h23 h24;...
     h31 h32 h33 h34;
-    0 0 0 1]
+    0 0 0 1];
 P = [K zeros(3,1)];
 eq1 = P*H*points(:,1) == imagePoints(:,1);
 eq2 = P*H*points(:,4) == imagePoints(:,4);
@@ -368,12 +334,12 @@ sol = solve([eq1 eq2 eq3 eq4], [h11 h12 h13 h14 h21 h22 h23 h24 h31 h32 h33 h34]
 Hcrtocm = [  double(sol.h11) double(sol.h12) double(sol.h13) double(sol.h14);...
         double(sol.h21) double(sol.h22) double(sol.h23) double(sol.h24);...
         double(sol.h31) double(sol.h32) double(sol.h33) double(sol.h34);...
-        0               0               0               1]
+        0               0               0               1];
     
 Hcmtocr = [Hcrtocm(1:3,1:3).'       -(Hcrtocm(1:3,1:3).')*Hcrtocm(1:3,4);...
-            zeros(1, 3)                     1]
+            zeros(1, 3)                     1];
         
-focalPointCM = Hcmtocr*[0; 0; 0; 1]
+focalPointCM = Hcmtocr*[0; 0; 0; 1];
 
 figure(position3d)
 % plot on 3D graph
@@ -381,22 +347,29 @@ hold on
 scatter3(focalPointCM(1), focalPointCM(2), focalPointCM(3), 'r', 'filled')
 
 %% test 
-clc
-[righe, colonne] = size(points);
-for i = 1:colonne
-    test1 = imagePoints(:,i);
-    test2 = P * Hcrtocm * points(:,i);
-    string = sprintf('\npoint number %d', i);
-    disp(string)
-    errore = abs(test1-test2)./test1
-end
+% clc
+% [righe, colonne] = size(points);
+% for i = 1:colonne
+%     test1 = imagePoints(:,i);
+%     test2 = P * Hcrtocm * points(:,i);
+%     string = sprintf('\npoint number %d', i);
+%     disp(string)
+%     errore = abs(test1-test2)./test1
+% end
 
 %% plot a camera
-figure(position3d)
-hold on
-orientation1 = [Hcmtocr(1:3,1)/norm(Hcmtocr(1:3, 1))...
-                Hcmtocr(1:3,2)/norm(Hcmtocr(1:3, 2))...
-                Hcmtocr(1:3,3)];
-orientation = [1 0 0; 0 0 -1; 0 1 0];
-           
-cam = plotCamera('Location',Hcmtocr(1:3, 4).','Orientation',orientation,'Size',0.05);
+% figure(position3d)
+% hold on
+% orientation1 = [Hcmtocr(1:3,1)/norm(Hcmtocr(1:3, 1))...
+%                 Hcmtocr(1:3,2)/norm(Hcmtocr(1:3, 2))...
+%                 Hcmtocr(1:3,3)];
+% orientation = [1 0 0; 0 0 -1; 0 1 0];
+%            
+% cam = plotCamera('Location',Hcmtocr(1:3, 4).','Orientation',orientation,'Size',0.05);
+
+%% remove object plotted from figure
+% h = plot...
+%     ...
+% if exist('h', 'var')
+%   delete(h)
+% end

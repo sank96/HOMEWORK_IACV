@@ -6,7 +6,7 @@ function [vp1, vp2, xT, yT] = findVPfromL(image)
 [clpSelection, xW, yW]  = selectRegion(image, 'car license');
 xW = xW(1);
 yW = yW(1);
-clpM = findEdges(clpSelection, 'binary');
+clpM = findEdges(clpSelection, 'canny');
 
 % display the input image in order to choose the corner points
 figure('Name', 'find car license plate');
