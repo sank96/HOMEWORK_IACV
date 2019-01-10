@@ -35,6 +35,12 @@ imageWithWheels = showProfileOnImage(imageWithWheels, profile2, 0, 0);
 
 % showTwoImages(imagesBW, imageWithWheels, 'conic as wheels')
 
+mainPoints = findCorner(imagesBW, 'find corner');
+figure('name', 'main features'), imshow(imageWithWheels)
+hold on
+plot(mainPoints(:,1), mainPoints(:,2), 'g+', 'LineWidth', 2, 'color', 'r')
+
+
 %% point 2.1
 % calculate bitanget
 lines = bitanget(C1, C2);
@@ -257,20 +263,27 @@ pause
 position3d = figure('name', '3d position');
 scatter3(0, 0, 0, 'r', 'filled')
 hold on
+xlabel('X axis'); ylabel('Y axis'); zlabel('Z axis'); 
 scatter3(0, dx1, 0, 'g', 'filled')
 scatter3(0, -dx2, 0, 'g', 'filled')
 pause
 
 imagePoints = [];
 points= [];
+midpoints = [];
+imageMid = [];
 [pr, pc] = size(imagePoints);
 
 str = 'yes';
 while strcmp(str,'yes')
-    [PA1, PA2, pa1, pa2] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY);
+    [PA1, PA2, pa1, pa2, M, m] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY);
     [pr, pc] = size(imagePoints);
     imagePoints(:, pc+1:pc+2) = [pa1 pa2];
     points(:, pc+1:pc+2) = [PA1 PA2];
+    [mr, mc] = size(midpoints);
+    midpoints(:, mc+1) = M;
+    imageMid(:, mc+1) = m;
+
 %     imagePoints = [imagePoints PA1 PA2]
     [pr, pc] = size(imagePoints);
     pause
@@ -324,9 +337,9 @@ H = [h11 h12 h13 h14;...
     0 0 0 1];
 P = [K zeros(3,1)];
 eq1 = P*H*points(:,1) == imagePoints(:,1);
-eq2 = P*H*points(:,4) == imagePoints(:,4);
+eq2 = P*H*points(:,3) == imagePoints(:,3);
 eq3 = P*H*points(:,5) == imagePoints(:,5);
-eq4 = P*H*points(:,6) == imagePoints(:,6);
+eq4 = P*H*points(:,7) == imagePoints(:,7);
 %P*H*P1 == p1;
 
 sol = solve([eq1 eq2 eq3 eq4], [h11 h12 h13 h14 h21 h22 h23 h24 h31 h32 h33 h34]);
@@ -339,30 +352,68 @@ Hcrtocm = [  double(sol.h11) double(sol.h12) double(sol.h13) double(sol.h14);...
 Hcmtocr = [Hcrtocm(1:3,1:3).'       -(Hcrtocm(1:3,1:3).')*Hcrtocm(1:3,4);...
             zeros(1, 3)                     1];
         
+HH = Hcmtocr;
 focalPointCM = Hcmtocr*[0; 0; 0; 1];
+
+ttt = 0.01;
+figure(position3d)
+% plot on 3D graph
+hold on
+h = scatter3(focalPointCM(1), focalPointCM(2), focalPointCM(3), 'r', 'filled');
+t = text(focalPointCM(1)+ttt, focalPointCM(2)+ttt, focalPointCM(3)+ttt, 'h');
+
+%% test 
+clc
+[righe, colonne] = size(points);
+for i = 1:colonne
+    test1 = imagePoints(:,i);
+    test2 = P * Hcrtocm * points(:,i);
+    string = sprintf('\npoint number %d', i);
+    disp(string)
+    errore = abs(test1-test2)./test1
+end
+
+%% without syms
+NN = imagePoints/points;
+MM = P\NN;
+MM(4,4) = 1;
+RR = MM(1:3, 1:3);
+% RR = [RR(:,1)/norm(RR(:,1))     RR(:,2)/norm(RR(:,2))       RR(:,3)/norm(RR(:,3))];
+HH1 = [RR.'       -(RR.')*MM(1:3,4);...
+            zeros(1, 3)                     1];
+      
+focalPointCM1 = HH1*[0; 0; 0; 1]
+figure(position3d)
+% plot on 3D graph
+hold on
+h1 = scatter3(focalPointCM1(1), focalPointCM1(2), focalPointCM1(3), 'c', 'filled');
+t1 = text(focalPointCM1(1)+ttt, focalPointCM1(2)+ttt, focalPointCM1(3)+ttt, 'h1');
+%% calculate H with mid point
+p = [midpoints(1,:) ; midpoints(3:4,:)];
+NN = imageMid/p;
+MM = inv(K) * NN;
+tt = cross(MM(:,1), MM(:,2));
+RR = [MM(:,1)/norm(MM(:,1)) tt/norm(tt) MM(:,2)/norm(MM(:,2))];
+
+HH = [RR ; 0 0 0];
+HH = [HH [MM(:,3) ; 1]];
+
+HH2 = [RR.' -(RR.')*MM(:,3);...
+    0 0 0 1]
+focalPointCM2 = HH2*[0; 0; 0; 1]
 
 figure(position3d)
 % plot on 3D graph
 hold on
-scatter3(focalPointCM(1), focalPointCM(2), focalPointCM(3), 'r', 'filled')
-
-%% test 
-% clc
-% [righe, colonne] = size(points);
-% for i = 1:colonne
-%     test1 = imagePoints(:,i);
-%     test2 = P * Hcrtocm * points(:,i);
-%     string = sprintf('\npoint number %d', i);
-%     disp(string)
-%     errore = abs(test1-test2)./test1
-% end
+h2 = scatter3(focalPointCM2(1), focalPointCM2(2), focalPointCM2(3), 'c', 'filled');
+t2 = text(focalPointCM2(1)+ttt, focalPointCM2(2)+ttt, focalPointCM2(3)+ttt, 'h2');
 
 %% plot a camera
 % figure(position3d)
 % hold on
-% orientation1 = [Hcmtocr(1:3,1)/norm(Hcmtocr(1:3, 1))...
-%                 Hcmtocr(1:3,2)/norm(Hcmtocr(1:3, 2))...
-%                 Hcmtocr(1:3,3)];
+% orientation = [Hcrtocm(1:3,1)/norm(Hcrtocm(1:3, 1))...
+%                 Hcrtocm(1:3,2)/norm(Hcrtocm(1:3, 2))...
+%                 Hcrtocm(1:3,3)/norm(Hcrtocm(1:3, 3))];
 % orientation = [1 0 0; 0 0 -1; 0 1 0];
 %            
 % cam = plotCamera('Location',Hcmtocr(1:3, 4).','Orientation',orientation,'Size',0.05);
@@ -370,6 +421,9 @@ scatter3(focalPointCM(1), focalPointCM(2), focalPointCM(3), 'r', 'filled')
 %% remove object plotted from figure
 % h = plot...
 %     ...
-% if exist('h', 'var')
-%   delete(h)
-% end
+getname = @(x) inputname(1);
+
+if exist('h1', 'var')
+  delete(h1)
+  delete(t1)
+end

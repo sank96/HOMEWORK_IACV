@@ -1,4 +1,4 @@
-function [P1, P2, p1, p2] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY)
+function [P1, P2, p1, p2, M, m] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, position3d, vpY)
 %PLOTSYMP Summary of this function goes here
 %   Detailed explanation goes here
 % get a pair of symmetric points and plot them 2d and 3d
@@ -8,6 +8,7 @@ function [P1, P2, p1, p2] = plotSymP(imagesBW, center, HrXY, HrYZ, position2d, p
 xS = xS(1);
 yS = yS(1);
 
+pause(0.3)
 figure('Name', 'symmetric points');
 imshow(findEdges(selection, 'canny'));
 title('select a pair of symmetric points')
@@ -20,6 +21,7 @@ p1 = [x(1)+xS; y(1)+yS; 1];
 p2 = [x(2)+xS; y(2)+yS; 1];
 % midpoint
 pm = crossRatioMid(p1, p2, vpY);
+m = pm;
 
 % projection on YZ plane
 cm = normalize((HrYZ*center));  % center
@@ -36,9 +38,9 @@ else
     z = -1;
 end
 if cmx-pmx<=0
-    x = -1;
-else 
     x = 1;
+else 
+    x = -1;
 end
 
 % distance between each point to midpoint in YZ plane
@@ -67,6 +69,7 @@ scatter3(x*dx, 0, z*dz, 'b', 'filled')
 
 P1 = [x*dx; -d; z*dz; 1];
 P2 = [x*dx; d; z*dz; 1];
+M = [x*dx; 0; z*dz; 1];
 
 end
 
