@@ -329,3 +329,11 @@ Since I have to calculate only the coordinates of the focal point in the car ref
 $$\left[\begin{split}
 0 \\ 0 \\0 \\ 1 \end{split}\right]$$
 in the product only the last column is considered.
+
+<br>
+<br>
+Mattia Sanchioni     
+
+matricola: 918065     
+codice persona: 10525887      
+email: mattia.sanchioni@mail.polimi.it
