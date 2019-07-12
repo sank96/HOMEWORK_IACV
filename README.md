@@ -10,7 +10,7 @@ Let's analyze the task point by point.
 ## Extraction of image features
 First of all images are uploaded, the photo used in the homework is '_Image1_'.
 
-<div style="text-align: center"><img src=\Image1.jpeg style="text-align:center" height=309></div>
+<div style="text-align: center"><img src=Image1.jpeg style="text-align:center" height=309></div>
 
 After that it is transformed in grey scaled:
 ```matlab
@@ -65,8 +65,8 @@ $$
 \Longrightarrow \text{4 lines}
 $$
 
-<div style="text-align: center"><img src=images\bitanget.png style="text-align:center" height=200>
-<img src=images\correctBitanget.png style="text-align:center" height=200>
+<div style="text-align: center"><img src=images/bitanget.png style="text-align:center" height=200>
+<img src=images/correctBitanget.png style="text-align:center" height=200>
 </div>
 On the left the 4 tangent lines and on the right the 2 correct.
 
@@ -186,7 +186,7 @@ $$
 I have already two vanishing points, finding another vanishing point I get three constraints, I need another one.
 
 I use the car license plate to find another vanishing point, since we know that the it is a plane shape. A figure ask to choose the corner (with the order shown in the photo) of the plate from the main points found previously.
-<div style="text-align: center"><img src=\images/carlicenseplane.png style="text-align:center" height=200></div>
+<div style="text-align: center"><img src=images/carlicenseplane.png style="text-align:center" height=200></div>
 
 
 
@@ -326,8 +326,10 @@ $$
 The matrix as found isn't completely correct, because a roto translation matrix has a orthogonal matrix 3x3 that describes the rotation. In my case the third column is null.
 
 Since I have to calculate only the coordinates of the focal point in the car reference and since they in the camera reference are
-$$\left[\begin{split}
-0 \\ 0 \\0 \\ 1 \end{split}\right]$$
+$$
+\left[\begin{split}
+0 \\ 0 \\0 \\ 1 \end{split}\right]
+$$
 in the product only the last column is considered.
 
 <br>
